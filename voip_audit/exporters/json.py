@@ -9,7 +9,7 @@ converters and reporting pipelines.
 import json
 from pathlib import Path
 
-from remote_access_audit.models import AssessmentResults
+from vpn_audit.models import AssessmentResults
 
 
 def export_findings_json(
@@ -22,13 +22,13 @@ def export_findings_json(
 
     findings = [
         {
-            "id": "remote-access-audit",
-            "title": "Remote Access Configuration Review",
+            "id": "voip-audit",
+            "title": "VoIP Security Configuration Review",
             "description": (
-                "A review of the organisation's remote access configuration "
-                "was performed."
+                "A security configuration review of the organisation's "
+                "VoIP platform was performed."
             ),
-            "platform": results.context.remote_access_solution.value,
+            "platform": results.context.voip_solution.value,
         }
     ]
 

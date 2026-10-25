@@ -1,7 +1,7 @@
 [project]
-name = "remote-access-audit"
+name = "voip-audit"
 version = "0.0.1"
-description = "Interactive remote access configuration review and reporting tool"
+description = "Interactive VoIP review and reporting tool"
 readme = "README.md"
 requires-python = ">=3.10"
 
@@ -12,28 +12,28 @@ authors = [
 dependencies = [
     "rich>=13.0.0",
     "pydantic>=2.0.0",
-    "jinja2>=3.1.0",
     "pyyaml>=6.0"
 ]
 
 keywords = [
     "security",
-    "vpn",
-    "intune",
-    "jamf",
-    "workspaceone",
-    "android",
-    "ios",
-    "mobile",
+    "voip",
+    "telephony",
+    "communications",
+    "sip",
+    "pbx",
     "audit",
-    "compliance"
+    "assessment",
+    "review",
+    "compliance",
+    "cybersecurity"
 ]
 
 [project.scripts]
-remote-access-audit = "remote_access_audit.cli:main"
+voip-audit = "voip_audit.cli:main"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.package-data]
-remote_access_audit = ["data/*.yaml"]
+voip_audit = ["data/*.yaml"]

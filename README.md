@@ -1,8 +1,8 @@
-# Remote-Access-Audit
+# Voip-Audit
 
-A Python-based tool designed to make Remote Access security reviews more efficient.
+A Python-based tool designed to make VoIP security reviews more efficient.
 
-Developed as an educational tool to accompany [Remote Access Network Security Explained](https://mollysec.com/posts/remote-access-security-explained/). 
+Developed as an educational tool to accompany [VoIP Security Explained](https://mollysec.com/posts/voip-security-explained/). 
 
 The generated outputs are intended to support formal security reviews and can be used as inputs into downstream reporting and governance platforms.
 
@@ -22,14 +22,14 @@ Markdown Report + JSON Export
 # Install UV
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install remote-access-audit via UV
-uv tool install git+https://github.com/CSpanias/remote-access-audit
+# Install voip-audit via UV
+uv tool install git+https://github.com/CSpanias/voip-audit
 
 # Verify installation
-remote-access-audit -h
+voip-audit -h
 
 # Update
-uv tool upgrade remote-access-audit
+uv tool upgrade voip-audit
 ```
 
 ### Development Installation
@@ -40,10 +40,10 @@ uv tool upgrade remote-access-audit
 
 ```bash
 # Clone repository
-git clone https://github.com/CSpanias/remote-access-audit /opt/remote-access-audit
+git clone https://github.com/CSpanias/voip-audit /opt/voip-audit
 
 # Move into the directory
-cd /opt/remote-access-audit
+cd /opt/voip-audit
 
 # Create virtual environment
 uv venv
@@ -52,7 +52,7 @@ uv venv
 uv pip install -e .
 
 # Verify installation
-python -m remote_access_audit.review
+python -m voip_audit.review
 ```
 
 ## Features

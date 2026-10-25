@@ -1,11 +1,11 @@
 """
-Assessment workflow engine for remote access reviews.
+Assessment workflow engine for VoIP security reviews.
 
 This module contains the core assessment workflow logic and is responsible for:
 
 - Collecting assessment context
 - Selecting applicable audit questions
-- Filtering controls by platform and solution
+- Filtering controls by platform
 - Coordinating the assessment workflow
 
 The review engine is intentionally separated from reporting and export 
@@ -14,8 +14,8 @@ formats.
 """
 
 
-from remote_access_audit.constants import INITIAL_CONTEXT_FIELDS
-from remote_access_audit.models import (
+from voip_audit.constants import INITIAL_CONTEXT_FIELDS
+from voip_audit.models import (
     AssessmentResults,
     AuditAnswer,
     ContextField,
@@ -24,50 +24,40 @@ from remote_access_audit.models import (
     Question,
     QuestionResponse,
     ReviewContext,
-    RemoteAccessPlatform,
-    SolutionType,
+    VoIPPlatform,
 )
-from remote_access_audit.loader import (
+from voip_audit.loader import (
     load_context_fields,
     load_questions,
 )
-from remote_access_audit.ui import console
+from voip_audit.ui import console
 
 
 def get_applicable_context_fields(
     fields: list[ContextField],
-    solution_type: SolutionType,
 ) -> list[ContextField]:
     """
-    Return all configured context fields.
+    Return all context fields applicable to the assessment.
     """
 
-    return [
-        field
-        for field in fields
-        if solution_type in field.solution_types
-    ]
+    return fields
 
 
 def get_applicable_questions(
     questions: list[Question],
-    platform: RemoteAccessPlatform,
-    solution_type: SolutionType,
+    platform: VoIPPlatform,
 ) -> list[Question]:
     """
-    Return all questions applicable to the selected platform and solution type.
+    Return all questions applicable to the selected platform.
     """
 
     applicable_questions = []
 
     for question in questions:
 
-        if solution_type not in question.solution_types:
-            continue
-
         if any(
-            platform_name.lower() == "all"
-            for platform_name in question.vendors
+            vendor.lower() == "all"
+            for vendor in question.vendors
         ):
             applicable_questions.append(question)
 
@@ -116,7 +106,7 @@ def collect_context(
 
             console.print(f"[bold]{field.label}[/bold]")
 
-            platform = responses.get("remote_access_solution")
+            platform_name = responses.get("voip_solution")
 
             if field.hints:
 
@@ -126,8 +116,8 @@ def collect_context(
                     console.print()
                     console.print(f"[bold blue]Hint[/bold blue]\n{common_hint}")
 
-                if platform:
-                    platform_hint = field.hints.get(platform)
+                if platform_name:
+                    platform_hint = field.hints.get(platform_name)
 
                     if platform_hint:
                         console.print(
@@ -178,7 +168,7 @@ def collect_context(
 
 def ask_question(
     question: Question,
-    platform: RemoteAccessPlatform,
+    platform: VoIPPlatform,
     current: int,
     total: int,
 ) -> QuestionResponse:
@@ -253,7 +243,7 @@ def ask_question(
 
 def conduct_review(
     questions: list[Question],
-    platform: RemoteAccessPlatform,
+    platform: VoIPPlatform,
 ) -> list[QuestionResponse]:
     """
     Execute the assessment question set.
@@ -384,7 +374,7 @@ def build_assessment_results(
 
 def run_assessment() -> AssessmentResults:
     """
-    Execute a complete remote access assessment.
+    Execute a complete VoIP security assessment.
     """
 
     all_fields = load_context_fields()
@@ -397,10 +387,6 @@ def run_assessment() -> AssessmentResults:
 
     initial_responses = collect_context(initial_fields)
 
-    platform = RemoteAccessPlatform(initial_responses["remote_access_solution"])
-
-    solution_type = platform.solution_type
-
     remaining_fields = [
         field
         for field in all_fields
@@ -408,7 +394,7 @@ def run_assessment() -> AssessmentResults:
     ]
 
     remaining_responses = collect_context(
-        get_applicable_context_fields(remaining_fields, solution_type)
+        get_applicable_context_fields(remaining_fields)
     )
 
     context_notes = {
@@ -426,14 +412,10 @@ def run_assessment() -> AssessmentResults:
 
     questions = get_applicable_questions(
         load_questions(),
-        context.remote_access_solution,
-        solution_type,
+        context.voip_solution,
     )
 
-    responses = conduct_review(
-        questions,
-        context.remote_access_solution,
-    )
+    responses = conduct_review(questions, context.voip_solution)
 
     return build_assessment_results(
         context=context,

@@ -1,0 +1,93 @@
+# Context fields collected before an assessment begins.
+#
+# These fields define the information required to describe
+# the client's VoIP environment, including the telephony
+# platform, deployment model, connectivity architecture,
+# and supporting services.
+#
+# Fields are loaded dynamically by the application to allow
+# future expansion without code changes.
+
+- id: client_name
+  label: What is the organisation's name?
+  type: string
+  required: true
+
+  vendors:
+  - all
+
+- id: voip_solution
+  label: Which VoIP solution is being reviewed?
+  type: choice
+  required: true
+
+  vendors:
+  - all
+
+  options:
+    - AudioCodes SBC
+    - AudioCodes Gateway
+    - Other
+
+- id: deployment_type
+  label: How is the VoIP solution deployed?
+  type: choice
+  required: true
+
+  vendors:
+  - all
+
+  options:
+    - Cloud Hosted
+    - On-Premises
+    - Hybrid
+    - Other
+
+- id: device_type
+  label: What type of VoIP component is primarily in scope?
+  type: choice
+  required: true
+
+  vendors:
+  - all
+
+  options:
+    - Session Border Controller (SBC)
+    - PBX / Call Manager
+    - Voice Gateway
+    - Cloud Telephony Platform
+    - Mixed Environment
+
+- id: identity_provider
+  label: What is the primary identity provider / authentication source?
+  type: choice
+  required: true
+
+  vendors:
+  - all
+
+  options:
+    - Microsoft Entra ID
+    - Active Directory
+    - LDAP
+    - RADIUS
+    - Local Accounts
+    - SAML / SSO
+    - Other
+
+- id: sip_provider
+  label: Which SIP trunk provider is used?
+  type: string
+  required: false
+
+  vendors:
+  - all
+
+- id: platform_model
+  label: What AudioCodes model is being reviewed?
+  type: string
+  required: false
+
+  vendors:
+    - AudioCodes SBC
+    - AudioCodes Gateway

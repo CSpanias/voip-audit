@@ -1,27 +1,31 @@
 """
 YAML data loading utilities.
 
-This module is responsible for loading and validating
-application data stored in YAML files.
+This module is responsible for loading and validating application data stored 
+in YAML files.
 
 Supported data sources:
 
 - questions.yaml
 - context_fields.yaml
 
-All loaded data is validated using the Pydantic models
-defined in models.py before being returned to the caller.
+All loaded data is validated using the Pydantic models defined in models.py 
+before being returned to the caller.
 
-This ensures invalid configuration is detected early
-during application startup and prevents malformed
-assessment content from reaching the review engine.
+This ensures invalid configuration is detected early during application startup 
+and prevents malformed assessment content from reaching the assessment engine.
+
+The loader is intentionally data-driven, allowing audit controls and context 
+collection fields to be maintained within YAML configuration files rather than 
+application code.
 """
+
 import yaml
 
 from pathlib import Path
 from pydantic import ValidationError
 
-from remote_access_audit.models import ContextField, Question
+from voip_audit.models import ContextField, Question
 
 
 DATA_DIR = Path(__file__).parent / "data"

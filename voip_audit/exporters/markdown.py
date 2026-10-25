@@ -9,10 +9,10 @@ and remediation guidance.
 from collections import defaultdict
 from pathlib import Path
 
-from remote_access_audit.constants import(
+from voip_audit.constants import(
     THEMES, REFERENCES, COMMENTARIES, GROUP_INTROS
 )
-from remote_access_audit.models import AssessmentResults
+from voip_audit.models import AssessmentResults
 
 
 def _get_review_scope(
@@ -22,7 +22,7 @@ def _get_review_scope(
     Return a human-readable assessment scope.
     """
 
-    return f"{results.context.remote_access_solution.value} deployment"
+    return f"{results.context.voip_solution.value} deployment"
 
 #-------------------------------------------------------------------------------
 # Executive Summary
@@ -39,28 +39,26 @@ def _generate_assessment_context(
     lines = []
 
     lines.extend([
+        "| Property | Value |",
+        "|----------|-------|",
         f"| Organisation | {context.client_name} |",
-        f"| Remote Access Solution | {context.remote_access_solution.value} |",
+        f"| VoIP Platform | {context.voip_solution.value} |",
     ])
 
-    if context.vpn_authentication_method:
-        lines.append(
-            f"| Authentication Method | {context.vpn_authentication_method} |"
-        )
+    if context.platform_model:
+        lines.append(f"| Platform Model | {context.platform_model} |")
+
+    if context.deployment_type:
+        lines.append(f"| Deployment Type | {context.deployment_type} |")
 
     if context.identity_provider:
         lines.append(f"| Identity Provider | {context.identity_provider} |")
 
-    if context.tunnel_type:
-        lines.append(f"| Tunnel Type | {context.tunnel_type} |")
+    if context.sip_provider:
+        lines.append(f"| SIP Provider | {context.sip_provider} |")
 
-    if context.certificate_authority:
-        lines.append(
-            f"| Certificate Authority | {context.certificate_authority} |"
-        )
-
-    if context.split_tunnel_mode:
-        lines.append(f"| Split Tunnel Mode | {context.split_tunnel_mode} |")
+    if context.device_type:
+        lines.append(f"| Device Type | {context.device_type} |")
 
     return lines
 
@@ -137,11 +135,6 @@ def _generate_executive_summary(
 
     themes = _get_identified_themes(results)
 
-    theme_text = _format_list([
-        theme.lower()
-        for theme in themes
-    ])
-
     lines.append("## Executive Summary")
     lines.append("")
 
@@ -150,31 +143,31 @@ def _generate_executive_summary(
     #---------------------------------------------------------------------------
     if posture == "strong":
         finding_summary = (
-            "The assessed remote access environment demonstrated a "
+            "The assessed VoIP environment demonstrated a "
             "generally mature and well-managed security posture. However, "
             "a small number of opportunities were identified for improvement."
         )
 
     elif posture == "moderate":
         finding_summary = (
-            "The assessed remote access environment demonstrated a mixture of "
+            "The assessed VoIP environment demonstrated a mixture of "
             "effective controls as well as opportunities for improvement."
         )
 
     else:
         finding_summary = (
-            "The assessed remote access environment demonstrated several "
+            "The assessed VoIP environment demonstrated several "
             "weaknesses affecting the operation and enforcement of remote "
             "access security controls."
         )
 
     lines.append(
-        "A remote access configuration review was conducted for the "
+        "A VoIP security configuration review was conducted for the "
         f"{results.context.client_name} environment covering the {scope}. "
         "The assessment considered authentication controls, cryptographic "
         "standards, access control mechanisms, monitoring capabilities, "
         "logging and audit controls, administrative security controls, and "
-        f"solution-specific security functionality. {finding_summary}"
+        f"VoIP platform security controls. {finding_summary}"
     )
 
     lines.append("")
@@ -206,7 +199,7 @@ def _generate_executive_summary(
     if posture == "strong":
         lines.append(
             "Overall, the assessed configuration provided a generally "
-            "effective foundation for secure remote access operations. "
+            "effective foundation for secure VoIP operations. "
             "The opportunities identified do not indicate any significant "
             "weaknesses; however, addressing them would further improve the "
             "consistency and effectiveness of existing controls."
@@ -214,24 +207,23 @@ def _generate_executive_summary(
 
     elif posture == "moderate":
         lines.append(
-            "Overall, the remote access platform provides a foundation for "
-            "secure remote access; however, further work is required to "
+            "Overall, the VoIP platform provides a foundation for "
+            "secure operation; however, further work is required to "
             "improve the consistency and effectiveness of key security "
             "controls. Addressing the observations identified would reduce "
-            "security risk and strengthen assurance in the remote access "
-            "environment."
+            "security risk and strengthen assurance in the VoIP environment."
         )
 
     else:
         lines.append(
             "Overall, significant opportunities exist to strengthen the "
-            "security posture of the remote access environment. While the "
+            "security posture of the VoIP environment. While the "
             "issues identified do not necessarily indicate an immediate "
             "compromise, they may reduce the effectiveness of controls "
-            "intended to protect remote access services. Priority should "
+            "intended to protect VoIP infrastucture. Priority should "
             "be given to improving authentication controls, strengthening "
             "access restrictions, and ensuring that security requirements "
-            "are enforced consistently across remote access services."
+            "are enforced consistently across VoIP infrastructure."
         )
 
     lines.append("")
@@ -267,10 +259,10 @@ def _generate_commentary(
     lines.append("")
 
     lines.append(
-        "A remote access configuration review was conducted for the "
+        "A VoIP security configuration review was conducted for the "
         f"{results.context.client_name} environment. The assessment reviewed "
-        "the effectiveness of controls used to secure remote access services "
-        "and protect access to internal systems and data."
+        "the effectiveness of controls used to secure VoIP infrastructure, "
+        "administrative interfaces, and supporting communications services."
     )
 
     lines.append("")
@@ -340,7 +332,7 @@ def _generate_remediation(
     for title, url in REFERENCES["Generic"].items():
         lines.append(f"- [{title}]({url})")
 
-    platform = results.context.remote_access_solution.value
+    platform = results.context.voip_solution.value
 
     if platform in REFERENCES:
         for title, url in REFERENCES[platform].items():
@@ -361,7 +353,7 @@ def export_markdown(
     path = Path(output_file)
 
     lines = [
-        f"# {results.context.client_name} - Remote Access Configuration Review",
+        f"# {results.context.client_name} - VoIP Security Configuration Review",
         "",
     ]
 

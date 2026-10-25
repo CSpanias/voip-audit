@@ -1,6 +1,5 @@
-
 """
-Core data models used throughout the Remote Access Audit application.
+Core data models used throughout the VoIP Audit application.
 
 This module defines the strongly-typed data structures that represent:
 
@@ -11,12 +10,11 @@ This module defines the strongly-typed data structures that represent:
 - Positive observations
 - Final assessment results
 
-The models are implemented using Pydantic and provide validation for
-data loaded from YAML files and generated during the audit workflow.
+The models are implemented using Pydantic and provide validation for data 
+loaded from YAML files and generated during the audit workflow.
 
-These models form the contract between the review engine and all
-exporters, ensuring a consistent and predictable data structure
-throughout the application.
+These models form the contract between the review engine and all exporters, 
+ensuring a consistent and predictable data structure throughout the application.
 """
 
 from enum import Enum
@@ -24,50 +22,17 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-
-class SolutionType(str, Enum):
+class VoIPPlatform(str, Enum):
     """
-    Supported remote access solution categories.
+    Supported VoIP platforms.
 
-    VPN:
-        Traditional remote network access solutions which
-        provide connectivity to internal networks and services.
-
-    PRA:
-        Privileged Remote Access solutions which broker,
-        control, and monitor access to individual systems
-        and resources.
-    """
-
-    VPN = "vpn"
-    PRA = "pra"
-
-
-class RemoteAccessPlatform(str, Enum):
-    """
-    Supported remote access platforms.
-
-    Used for displaying solution-specific navigation hints
+    Used for displaying platform-specific navigation hints
     throughout the assessment process.
     """
 
-    ALWAYS_ON_VPN = "Microsoft Always On VPN"
-    BEYONDTRUST_PRA = "BeyondTrust PRA"
+    AUDIOCODES_SBC = "AudioCodes SBC"
+    AUDIOCODES_GATEWAY = "AudioCodes Gateway"
     OTHER = "Other"
-
-    @property
-    def solution_type(self) -> SolutionType:
-
-        if self is RemoteAccessPlatform.ALWAYS_ON_VPN:
-            return SolutionType.VPN
-
-        if self is RemoteAccessPlatform.BEYONDTRUST_PRA:
-            return SolutionType.PRA
-
-        if self is RemoteAccessPlatform.OTHER:
-            return SolutionType.VPN
-
-        raise ValueError(f"No solution type defined for {self}")
 
 
 class AuditAnswer(str, Enum):
@@ -108,16 +73,11 @@ class ContextField(BaseModel):
 
     required: bool = True
 
-    solution_types: list[SolutionType] = Field(
-        default_factory=lambda: [
-            SolutionType.VPN,
-            SolutionType.PRA,
-        ]
-    )
-
     options: list[str] | None = None
 
     hints: dict[str, str] | None = None
+
+    vendors: list[str] = Field(default_factory=lambda: ["all"])
 
 
 class ReviewContext(BaseModel):
@@ -128,19 +88,17 @@ class ReviewContext(BaseModel):
 
     client_name: str
 
-    remote_access_solution: RemoteAccessPlatform
+    voip_solution: VoIPPlatform
+
+    platform_model: str
+
+    deployment_type: str | None = None
+
+    device_type: str | None = None
 
     identity_provider: str | None = None
 
-    vpn_authentication_method: str | None = None
-
-    pra_authentication_source: str | None = None
-
-    tunnel_type: str | None = None
-
-    certificate_authority: str | None = None
-
-    split_tunnel_mode: str | None = None
+    sip_provider: str | None = None
 
     context_notes: dict[str, str] = Field(default_factory=dict)
 
@@ -181,13 +139,6 @@ class Question(BaseModel):
     expected_answer: AuditAnswer
 
     question: str
-
-    solution_types: list[SolutionType] = Field(
-        default_factory=lambda: [
-            SolutionType.VPN,
-            SolutionType.PRA,
-        ]
-    )
 
     description: str
     commentary: str
@@ -231,7 +182,7 @@ class PositiveObservation(BaseModel):
 
 class AssessmentResults(BaseModel):
     """
-    Represents the complete outcome of a remote access assessment.
+    Represents the complete outcome of a VoIP security assessment.
 
     This model acts as the central object exchanged between
     the review engine and exporters.
