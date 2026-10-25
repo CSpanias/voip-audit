@@ -157,8 +157,8 @@ def _generate_executive_summary(
     else:
         finding_summary = (
             "The assessed VoIP environment demonstrated several "
-            "weaknesses affecting the operation and enforcement of remote "
-            "access security controls."
+            "weaknesses affecting the operation and enforcement of VoIP "
+            "platform security controls."
         )
 
     lines.append(

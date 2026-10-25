@@ -26,7 +26,9 @@ keywords = [
     "assessment",
     "review",
     "compliance",
-    "cybersecurity"
+    "cybersecurity",
+    "sbc",
+    "audiocodes",
 ]
 
 [project.scripts]
@@ -37,3 +39,7 @@ include-package-data = true
 
 [tool.setuptools.package-data]
 voip_audit = ["data/*.yaml"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
