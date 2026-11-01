@@ -1,14 +1,12 @@
 # Assessment question definitions.
 #
-# This file contains all security controls assessed during
-# VoIP platform configuration reviews.
+# This file contains all security controls assessed during VoIP platform 
+# configuration reviews.
 #
-# The assessment focuses on the security configuration of
-# VoIP infrastructure components, including Session Border
-# Controllers (SBCs), voice gateways, administrative
-# interfaces, authentication services, cryptographic
-# settings, logging capabilities, and supporting network
-# security controls.
+# The assessment focuses on the security configuration of VoIP infrastructure 
+# components, including Session Border Controllers (SBCs), voice gateways, 
+# administrative interfaces, authentication services, cryptographic settings, 
+# logging capabilities, and supporting network security controls.
 #
 # Each question includes:
 # - Vulnerability mapping
@@ -17,8 +15,8 @@
 # - Positive observations
 # - Vendor-specific navigation hints
 #
-# Questions should be maintained within this file rather
-# than being hard-coded into the application.
+# Questions should be maintained within this file rather than being hard-coded 
+# into the application.
 #
 # Response Options:
 # 1. Compliant
@@ -26,114 +24,98 @@
 # 3. Not Applicable
 # 4. Unknown
 #
-# Questions should be phrased so that the secure
-# configuration state always results in a "Compliant"
-# response.
+# Questions should be phrased so that the secure configuration state always 
+# results in a "Compliant" response.
 #
-# The current assessment baseline is primarily targeted
-# at AudioCodes VoIP infrastructure. Future platform-
-# specific controls may be introduced through vendor
-# filtering without requiring changes to the application
-# logic.
+# The current assessment baseline is primarily targeted at AudioCodes VoIP 
+# infrastructure. Future platform-specific controls may be introduced through 
+# vendor filtering without requiring changes to the application logic.
 
 
 #-------------------------------------------------------------------------------
-# Platform Configuration
+# PLATFORM CONFIGURATION
 #-------------------------------------------------------------------------------
 
-- finding_id: unsupported-or-unpatched-platform
-  finding_title: VoIP Platform Not Supported or Fully Patched
+- finding_id: unsupported-software-version
+  finding_title: Unsupported Software Version
   theme: Platform Configuration
+  commentary_group: Platform Configuration and Lifecycle Management
+  section: platform_configuration
+  remediation_id: platform_lifecycle
 
-  question: Is the AudioCodes platform running a supported and fully patched software version?
+  question: Is the AudioCodes platform running a supported software version?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review the firmware version and update status of the AudioCodes
-      platform. Confirm the platform is running a vendor-supported
-      software release and that security updates are applied in
-      accordance with organisational patch management requirements.
+    common: |
+      Review the firmware version and update status of the assessed platform. 
+      Confirm the platform is running a vendor-supported software release.
 
-    AudioCodes SBC: >
-      Navigate to the system information or software version page and
-      review the installed firmware version. Confirm the release is
-      supported by AudioCodes and that current security updates have
-      been applied.
-
-    AudioCodes Gateway: >
-      Navigate to the system information or software version page and
-      review the installed firmware version. Confirm the release is
-      supported by AudioCodes and that current security updates have
-      been applied.
+    audiocodes: |
+      Navigate to the system information or software version page and review 
+      the installed firmware version. Confirm the release is supported by 
+      AudioCodes and that current security updates have been applied.
 
   description: >
-    The AudioCodes platform was running unsupported, end-of-life, or
+    The AudioCodes platform was running unsupported, end-of-life, or 
     insufficiently patched software.
 
   commentary: >
-    Outdated VoIP infrastructure may be exposed to publicly known
-    security vulnerabilities and may no longer receive security updates
-    from the vendor. As VoIP platforms often process business-critical
-    communications and may be accessible from untrusted networks,
-    exploitation of known vulnerabilities could result in unauthorised
-    access, service disruption, fraud, or compromise of administrative
-    functions.
+    Outdated VoIP infrastructure may be exposed to publicly known security 
+    vulnerabilities and may no longer receive security updates from the vendor. 
+    As VoIP platforms often process business-critical communications and may be 
+    accessible from untrusted networks, exploitation of known vulnerabilities 
+    could result in unauthorised access, service disruption, fraud, or 
+    compromise of administrative functions.
 
   solution: >
-    Establish a lifecycle management process to ensure the AudioCodes
-    platform remains supported, maintained, and fully patched in
-    accordance with vendor guidance.
+    Establish a lifecycle management process to ensure the AudioCodes platform 
+    remains supported, maintained, and fully patched in accordance with vendor 
+    guidance.
 
   positive: >
-    The assessed AudioCodes platform was running a supported and fully
-    patched software version.
+    The assessed AudioCodes platform was running a supported and fully patched 
+    software version.
 
-  good_value: >
-    The platform is running a supported and fully patched software
-    version.
-
-  bad_value: >
-    The platform is outdated, unsupported, or missing security updates.
+  expected_value: |
+    The platform is running a supported and fully patched software version.
 
 #-------------------------------------------------------------------------------
-# Authentication Controls
+# AUTHENTICATION
 #-------------------------------------------------------------------------------
 
 - finding_id: admin-mfa-not-enforced
   finding_title: Administrator Multi-Factor Authentication Not Enforced
   theme: Authentication
+  commentary_group: Authentication and Identity
+  section: authentication
+  remediation_id: identity_and_access_management
 
   question: Is multi-factor authentication enforced for administrative access?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review the authentication requirements for administrative
-      access to the AudioCodes platform and confirm whether
-      privileged users are required to complete multi-factor
-      authentication.
+      common: |
+        Review the authentication requirements for administrative access to the 
+        AudioCodes platform and confirm whether privileged users are required 
+        to complete multi-factor authentication.
 
   description: >
-    Multi-factor authentication was not enforced for
-    administrative accounts.
+    Multi-factor authentication was not enforced for administrative accounts.
 
   commentary: >
-    Administrative accounts provide highly privileged access to
-    the VoIP environment. Compromise of such accounts may allow
-    an attacker to modify configurations, weaken security
-    controls, intercept communications, or disrupt telephony
-    services.
+    Administrative accounts provide highly privileged access to the VoIP 
+    environment. Compromise of such accounts may allow an attacker to modify 
+    configurations, weaken security controls, intercept communications, or 
+    disrupt telephony services.
 
   solution: >
     Configure multi-factor authentication as a mandatory control
@@ -141,146 +123,539 @@
     supported.
 
   positive: >
-    Multi-factor authentication is enforced for administrative
-    access.
+    Multi-factor authentication was enforced for administrative access.
 
-  good_value: >
+  expected_value: |
     Administrative MFA is enforced.
 
-  bad_value: >
-    Administrative accounts rely solely on passwords.
+- finding_id: weak-password-policy
+  finding_title: Weak Password Policy Configured
+  theme: Authentication
+  commentary_group: Authentication and Identity
+  section: authentication
+  remediation_id: identity_and_access_management
+
+  question: Are strong password controls enforced for local administrative 
+    accounts?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review password policy settings and confirm strong password requirements 
+      are enforced for administrative accounts.
+
+    audiocodes: |
+      Setup > Administration > Web & CLI > Local Users
+
+      Review Password complexity, Password history, Password age, and Weak 
+      password detection. Confirm strong password controls are enforced and weak
+      passwords are not permitted.
+
+  description: >
+    Weak password controls were configured for administrative accounts.
+
+  commentary: >
+    Weak password requirements increase the likelihood of credential compromise 
+    through password guessing, reuse, or brute-force attacks. Administrative 
+    accounts should be protected by strong password controls.
+
+  solution: >
+    Enforce strong password complexity requirements, prevent password reuse, 
+    and implement controls that identify or restrict the use of weak passwords.
+
+  positive: >
+    Strong password controls were enforced for administrative accounts.
+
+  expected_value: |
+    Strong password controls are enforced
+
+- finding_id: authentication-bruteforce-protection-not-configured
+  finding_title: Authentication Brute-Force Protection Not Configured
+  theme: Authentication
+  commentary_group: Authentication and Identity
+  section: authentication
+  remediation_id: identity_and_access_management
+
+  question: Are protections implemented against repeated failed authentication 
+    attempts?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common:
+      Review authentication protection settings and confirm accounts are 
+      temporarily restricted following repeated failed login attempts.
+
+    audiocodes:
+      Setup > Administration > Web & CLI > Local Users > Block Duration
+
+      Setup > Administration > Web & CLI > Web Settings > Security > Deny 
+      Authentication Timer / Deny Access On Fail Count 
+
+  description: >
+    Protections against repeated authentication failures were not configured.
+
+  commentary: >
+    Without brute-force protection controls, administrative accounts may be 
+    vulnerable to password guessing and automated authentication attacks.
+
+  solution: >
+    Implement authentication protection mechanisms such as account lockout, 
+    authentication throttling, back-off timers, or temporary source 
+    restrictions following repeated failed login attempts.
+
+  positive: >
+    Protections were implemented against repeated failed authentication 
+    attempts.
+
+  expected_value: |
+    - Deny Authentication Timer (IP-based) and Deny Access On Fail Count are 
+      configured (Not 0)
+    - Block Duration (account-based) is configured
 
 - finding_id: shared-accounts-permitted
   finding_title: Shared Accounts Permitted
   theme: Authentication
+  commentary_group: Authentication and Identity
+  section: authentication
+  remediation_id: identity_and_access_management
 
   question: Are individual administrator accounts required?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review administrative accounts and confirm that access is
-      assigned to named individuals rather than shared or generic
-      accounts.
+    common:
+      Review administrative accounts and confirm that access is assigned to 
+      named individuals rather than shared or generic accounts.
+
+    audiocodes: >
+      Setup > Administration tab > Web & CLI folder > Local Users
 
   description: >
     Shared administrative accounts were permitted.
 
   commentary: >
-    Shared accounts reduce accountability and make it difficult
-    to attribute administrative actions to specific individuals.
-    This may hinder investigations and weaken audit controls.
+    Shared accounts reduce accountability and make it difficult to attribute 
+    administrative actions to specific individuals. This may hinder 
+    investigations and weaken audit controls.
 
   solution: >
-    Replace shared accounts with uniquely assigned administrator
-    accounts to improve accountability and auditability.
+    Replace shared accounts with uniquely assigned administrator accounts to 
+    improve accountability and auditability.
 
   positive: >
-    Administrative access is performed using uniquely assigned
-    accounts.
+    Administrative access was performed using uniquely assigned accounts.
 
-  good_value: >
-    Individual administrator accounts are required.
-
-  bad_value: >
-    Shared administrative accounts are permitted.
-
-- finding_id: local-accounts-enabled
-  finding_title: Local Accounts Used for Administration
-  theme: Authentication
-
-  question: Is centralised identity management used for administrative access?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Identify the authentication source used for platform
-      administration and determine whether authentication is
-      integrated with a central identity provider such as Entra
-      ID, Active Directory, LDAP, or RADIUS rather than relying
-      solely on locally managed accounts.
-
-  description: >
-    Administrative authentication relied solely on locally
-    managed accounts.
-
-  commentary: >
-    Local account management may reduce visibility and
-    governance over account lifecycle processes. Centralised
-    authentication typically improves consistency, access
-    control, and administrative oversight.
-
-  solution: >
-    Integrate administrative authentication with a centrally
-    managed identity provider where operationally feasible.
-
-  positive: >
-    Administrative authentication is integrated with a central
-    identity provider.
-
-  good_value: >
-    Centralised identity management is in use.
-
-  bad_value: >
-    Administrative access relies on local accounts.
+  expected_value: |
+    Review configured user accounts and confirm access is assigned to named 
+    individuals rather than shared accounts.
 
 - finding_id: default-or-unused-accounts-enabled
   finding_title: Default or Unused Accounts Enabled
   theme: Authentication
+  commentary_group: Authentication and Identity
+  section: authentication
+  remediation_id: identity_and_access_management
 
   question: Are default and unused local accounts disabled?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review locally configured accounts and determine whether
-      default, dormant, or otherwise unused accounts remain
-      enabled on the platform.
+    common:
+      Review locally configured accounts and determine whether default, 
+      dormant, or otherwise unused accounts remain enabled on the platform.
+
+    audiocodes: |
+      Setup > Administration tab > Web & CLI folder > Local Users
 
   description: >
     Default or unused accounts remained enabled on the platform.
 
   commentary: >
-    Unused accounts increase the attack surface of the platform
-    and may provide unnecessary opportunities for unauthorised
-    access. Accounts that are no longer required should be
-    disabled or removed.
+    Unused accounts increase the attack surface of the platform and may provide 
+    unnecessary opportunities for unauthorised access. Accounts that are no 
+    longer required should be disabled or removed.
 
   solution: >
-    Disable or remove default and unused accounts that are not
-    required for operational purposes.
+    Disable or remove default and unused accounts that are not required for 
+    operational purposes.
 
   positive: >
-    Default and unused accounts have been disabled or removed.
+    Default and unused accounts had been disabled or removed.
 
-  good_value: >
-    Only required accounts are enabled.
-
-  bad_value: >
-    Default or unused accounts remain enabled.
+  expected_value: |
+    Review local accounts and confirm default accounts are secured or removed 
+    where appropriate (default accounts are Admin:Admin, User:User)
 
 #-------------------------------------------------------------------------------
-# Cryptography Controls
+# ADMINISTRATIVE SECURITY
+#-------------------------------------------------------------------------------
+
+- finding_id: http-management-enabled
+  finding_title: Administrative Interface Accessible Over HTTP
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: administrative_interface_security
+
+  question: Is administrative web access restricted to HTTPS only?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: >
+      Review the configured Web Interfaces and confirm:
+
+        - HTTP access is disabled
+        - HTTPS Only is enabled
+        - A TLS Context is assigned to the management interface
+
+        Where HTTPS is used, confirm the assigned TLS Context enforces 
+        supported TLS versions and cryptographic settings.
+
+    audiocodes: |
+      Setup > Administration tab > Web & CLI folder > Web Interfaces
+
+  description: >
+    Administrative access to the platform was available over unencrypted HTTP.
+
+  commentary: >
+    HTTP does not provide confidentiality or integrity protection.  
+    Administrator credentials and session data may be exposed to interception 
+    by an attacker with access to the network path.
+
+  solution: >
+    Disable HTTP management access and enforce HTTPS for all administrative 
+    activity.
+
+  positive: >
+    Administrative access was restricted to HTTPS.
+
+  expected_value: |
+    HTTPS Only
+
+- finding_id: insecure-cli-access-enabled
+  finding_title: Insecure Administrative CLI Access Enabled
+
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: administrative_interface_security
+
+  question: Is administrative CLI access restricted to secure 
+    protocols?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common:
+      Review SSH configuration and access controls. Confirm SSH access is 
+      limited to authorised administrators and, where possible, restricted to 
+      approved networks or management workstations.
+
+    audiocodes: |
+      Setup menu > Administration tab > Web & CLI folder > Telnet / SSH 
+      Interfaces
+
+  description: >
+    An insecure management protocol was enabled for CLI administration.
+
+  commentary: >
+    Protocols such as Telnet do not provide confidentiality or integrity 
+    protection. Administrative credentials and management traffic may be 
+    exposed to interception by attackers with network access.
+
+  solution: >
+    Restrict SSH access to authorised administrators and approved management 
+    networks.
+
+  positive: >
+    Administrative CLI access was restricted to secure protocols.
+
+  expected_value: |
+    SSH enabled, Telnet disabled
+
+- finding_id: excessive-administrative-privileges
+  finding_title: Administrative Accounts Not Assigned Appropriate Roles
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: privileged_access_governance
+
+  question: Are administrative accounts assigned to appropriate built-in roles?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review configured management accounts and assigned user levels. Confirm 
+      built-in role separation is used and that users are not unnecessarily 
+      assigned highly privileged roles.
+
+    audiocodes: |
+      Setup > Administration tab > Web & CLI folder > Local Users
+
+  description: >
+    Administrative accounts were assigned excessive privilege levels or role 
+    separation was not effectively utilised.
+
+  commentary: >
+    Excessive administrative privileges increase the risk of accidental
+    misconfiguration, unauthorised changes, and misuse of privileged
+    functionality. Assigning users to appropriate built-in roles helps limit 
+    access to only the administrative capabilities required for their 
+    responsibilities.
+
+  solution: >
+    Review management user accounts and assign the lowest privilege level 
+    necessary. Use the built-in Monitor, Administrator, and Security 
+    Administrator roles to separate administrative responsibilities where 
+    appropriate.
+
+  positive: >
+    Administrative accounts were assigned appropriate built-in roles.
+
+  expected_value: |
+    Review User Levels:
+
+    - Monitor
+    - Administrator
+    - Security Administrator
+
+    Confirm role separation is used where appropriate and users are
+    not unnecessarily assigned Security Administrator privileges.
+
+- finding_id: excessive-session-timeout
+  finding_title: Administrative Session Timeout Not Appropriately Configured
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: administrative_interface_security
+
+  question: Is the administrative session timeout configured appropriately?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review the web management session settings and confirm inactive 
+      administrative sessions are automatically terminated after an appropriate 
+      period of inactivity.
+
+    audiocodes: |
+      Setup > Administration tab > Web & CLI folder > Local Users > Web Session 
+      Timeout
+
+  description: >
+    Administrative sessions remained active for longer than required.
+
+  commentary: >
+    Excessive session timeouts increase the likelihood of unauthorised access 
+    through unattended or abandoned administrative sessions.
+
+  solution: >
+    Configure an appropriate inactivity timeout to ensure unused administrative 
+    sessions are automatically terminated.
+
+  positive: >
+    Administrative sessions were terminated following an appropriate period of 
+    inactivity.
+
+  expected_value: |
+    15 (default) or less
+
+- finding_id: ssh-key-authentication-not-used
+  finding_title: SSH Key-Based Authentication Not Used
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: administrative_interface_security
+
+  question: Is SSH configured to use key-based authentication where 
+    operationally feasible?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review SSH authentication settings and determine whether SSH access 
+      relies on public/private key pairs rather than passwords where 
+      operationally feasible.
+
+    audiocodes: |
+      Setup > Administration tab > Web & CLI folder > Local Users
+
+  description: >
+    SSH administration relied solely on password-based authentication.
+
+  commentary: >
+    Password-based SSH authentication is generally more susceptible to 
+    credential attacks than key-based authentication. Public/private key 
+    authentication can provide stronger assurance of administrator identity and
+    reduce the risk of credential compromise.
+
+  solution: >
+    Implement SSH key-based authentication for administrative access where 
+    operationally feasible and operational requirements permit.
+
+  positive: >
+    SSH administration used key-based authentication.
+
+  expected_value: |
+    SSH public keys are configured and SSHRequirePublicKey is enabled
+
+#-------------------------------------------------------------------------------
+# ACCESS CONTROL
+#-------------------------------------------------------------------------------
+
+- finding_id: insufficient-management-access-restrictions
+  finding_title: Management Access Not Adequately Restricted
+  theme: Access Control
+  commentary_group: Administrative Access Control
+  section: access_control
+  remediation_id: privileged_access_governance
+
+  question: Is management access restricted to approved systems or networks?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review management interface configuration and determine whether access is 
+      restricted to approved management networks, hosts, or administrative 
+      systems. Evidence may include:
+
+      - OAMP interface separation
+      - Firewall restrictions
+      - Trusted host configuration
+      - Dedicated management VLANs
+      - Jump hosts
+
+    audiocodes: |
+      Setup > Administration tab > Web & CLI folder > Web Interfaces
+
+  description: >
+    Administrative management services were accessible from unnecessary systems 
+    or networks.
+
+  commentary: >
+    Restricting management access reduces the attack surface of the platform 
+    and helps protect administrative interfaces from unauthorised access 
+    attempts originating from internal or external networks.
+
+  solution: >
+    Restrict management services to approved administrative workstations, jump 
+    hosts, or management networks.
+
+  positive: >
+    Management access was restricted to approved systems and networks.
+
+  expected_value: |
+    Evidence exists that management services are restricted to approved
+    management networks, hosts, or interfaces. Examples include:
+
+    - Dedicated management VLANs
+    - OAMP interfaces
+    - Firewall restrictions
+    - Trusted host restrictions
+    - Jump hosts
+    - Administrative workstations
+    - Network segmentation
+
+    Where no technical restriction exists, management services should not be 
+    directly accessible from untrusted networks.
+
+- finding_id: administrative-access-not-reviewed
+  finding_title: Administrative Access Not Periodically Reviewed
+  theme: Access Control
+  commentary_group: Administrative Access Control
+  section: access_control
+  remediation_id: privileged_access_governance
+
+  question: Are dormant and administrative accounts periodically reviewed and
+    managed?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review administrative accounts for signs of dormancy, inactivity, or 
+      unnecessary access. Determine whether unused privileged accounts are 
+      identified and managed appropriately.
+
+    audiocodes: |
+      Setup > Administration > Web & CLI > Local Users > Status / Inactivity 
+      Users
+
+  description: >
+    Dormant, inactive, or unnecessary administrative accounts were not 
+    adequately reviewed or managed.
+
+  commentary: >
+    Privileged accounts that are no longer required may provide an unnecessary 
+    attack surface and increase the risk of unauthorised access. Periodic 
+    review of administrative accounts helps identify dormant users, excessive 
+    access, and accounts that no longer have a legitimate operational 
+    requirement.
+
+  solution: >
+    Periodically review administrative accounts and remove, disable, or 
+    otherwise manage dormant, inactive, and unnecessary privileged accounts.
+
+  positive: >
+    Administrative accounts were actively reviewed and no unnecessary, dormant, 
+    or unexplained privileged accounts were identified.
+
+  expected_value: |
+    Administrative accounts are reviewed periodically. No unnecessary, dormant, 
+    inactive, unused, or unexplained privileged accounts are identified.
+
+#-------------------------------------------------------------------------------
+# CRYPTOGRAPHY
 #-------------------------------------------------------------------------------
 
 - finding_id: weak-tls-configuration
   finding_title: Weak TLS Configuration
   theme: Cryptography
+  commentary_group: Cryptography and Communications Security
+  section: cryptography
+  remediation_id: cryptography_and_communications
 
   question: Are only supported TLS versions permitted for administrative and
     VoIP communications?
@@ -288,13 +663,15 @@
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review TLS configuration and confirm that only supported TLS versions are 
-      permitted for administrative and VoIP communications.
+    common: |
+      TLSv1.2, TLSv1.3, or TLSv1.2 and TLSv1.3 enabled. TLS 1.0 and TLS 1.1 
+      disabled.
+
+    audiocodes: |
+      Setup > IP Network tab > Security folder > TLS Contexts > TLS Version
 
   description: >
     Older TLS versions were permitted for management or VoIP communications.
@@ -308,44 +685,96 @@
     communications by removing support for older protocol versions.
 
   positive: >
-    VoIP communications are restricted to supported TLS versions.
+    VoIP communications were restricted to supported TLS versions.
 
-  good_value: >
-    TLS 1.2 and TLS 1.3 only.
+  expected_value: |
+    Only TLS 1.2 and/or TLS 1.3 are permitted
 
-  bad_value: >
-    Deprecated TLS versions are permitted.
-
-- finding_id: signalling-and-media-encryption-not-enforced
-  finding_title: VoIP Signalling and Media Encryption Not Enforced
+- finding_id: weak-cryptography
+  finding_title: Weak Cryptographic Algorithms Permitted
   theme: Cryptography
+  commentary_group: Cryptography and Communications Security
+  section: cryptography
+  remediation_id: cryptography_and_communications
 
-  question: Are SIP signalling and voice communications encrypted where supported?
+  question: Are only supported cryptographic algorithms and cipher suites
+    permitted?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review SIP trunk, gateway, and VoIP security configuration
-      to determine whether SIP signalling is protected using TLS
-      and whether voice communications are protected using SRTP
-      where supported by connected systems and service providers.
+    common: |
+      Review cryptographic configuration including cipher suites, encryption
+      algorithms, key exchange groups, and Diffie-Hellman parameters.
+      Confirm deprecated, weak, or unnecessary cryptographic algorithms
+      are disabled.
+
+    audiocodes: |
+      Setup > IP Network tab > Security folder > TLS Contexts > 
+      Cipher Server / Cipher Client / Key Exchange Groups / DH Key Size
 
   description: >
-    SIP signalling and/or voice communications were transmitted
-    without encryption despite encryption capabilities being
-    supported.
+    Weak or deprecated cryptographic algorithms, key exchange settings, or 
+    cryptographic parameters remained enabled.
 
   commentary: >
-    Unencrypted signalling may expose call metadata,
-    authentication information, and routing details to
-    interception. Unencrypted voice communications may also be
-    susceptible to eavesdropping by an attacker with access to
-    the network path.
+    Weak or deprecated cryptographic settings may reduce the confidentiality 
+    and integrity of administrative and VoIP communications. Legacy cipher 
+    suites, weak key exchange mechanisms, and insufficient cryptographic 
+    parameters may increase the risk of interception, downgrade attacks, or 
+    compromise of encrypted communications.
+
+  solution: >
+    Align cryptographic settings with current vendor guidance and industry best 
+    practice. Remove support for deprecated cipher suites, weak cryptographic 
+    algorithms, and insufficient key exchange parameters.
+
+  positive: >
+    Strong, modern cryptographic algorithms and key exchange parameters were 
+    enforced.
+
+  expected_value: |
+    - Cipher Server and Cipher Client: DEFAULT is accepted
+    - Key Exchange Groups: X25519:P-256:P-384:X448 (default)
+    - DH Key Size: 2048 bits or greater
+
+- finding_id: signalling-and-media-encryption-not-enforced
+  finding_title: VoIP Signalling and Media Encryption Not Enforced
+  theme: Cryptography
+  commentary_group: Cryptography and Communications Security
+  section: cryptography
+  remediation_id: cryptography_and_communications
+
+  question: Are SIP signalling and voice communications encrypted where 
+    supported?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review SIP trunk, gateway, and VoIP security configuration to determine 
+      whether SIP signalling is protected using TLS and whether voice 
+      communications are protected using SRTP where supported by connected 
+      systems and service providers.
+
+    audiocodes: |
+      Setup menu > IP Network tab > Security folder > Security Settings
+
+  description: >
+    SIP signalling and/or voice communications were transmitted without 
+    encryption despite encryption capabilities being supported.
+
+  commentary: >
+    Unencrypted signalling may expose call metadata, authentication 
+    information, and routing details to interception. Unencrypted voice 
+    communications may also be susceptible to eavesdropping by an attacker with 
+    access to the network path.
 
   solution: >
     Enable TLS for SIP signalling and SRTP for voice media
@@ -353,573 +782,174 @@
     service providers.
 
   positive: >
-    SIP signalling and voice communications are encrypted where
-    supported.
+    SIP signalling and voice communications were encrypted where supported.
 
-  good_value: >
+  expected_value: |
     TLS and SRTP are enabled where supported.
 
-  bad_value: >
-    Voice communications or signalling traffic are transmitted
-    without encryption.
-
-- finding_id: weak-cryptography
-  finding_title: Weak Cryptographic Algorithms Permitted
-  theme: Cryptography
-
-  question: Are deprecated ciphers and cryptographic algorithms disabled?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review cryptographic configuration including cipher suites,
-      encryption algorithms, integrity algorithms, and key exchange
-      settings. Confirm deprecated or weak algorithms are disabled.
-
-  description: >
-    Weak or deprecated cryptographic algorithms remained enabled.
-
-  commentary: >
-    Deprecated cryptographic algorithms may reduce the confidentiality and 
-    integrity of administrative and VoIP communications.
-
-  solution: >
-    Align the cryptographic configuration with current vendor guidance and 
-    industry best practice.
-
-  positive: >
-    Strong, modern cryptographic algorithms are enforced.
-
-  good_value: >
-    Deprecated cryptography is disabled.
-
-  bad_value: >
-    Weak cryptographic algorithms remain enabled.
-
 #-------------------------------------------------------------------------------
-# Administrative Security
+# THREAT PROTECTION
 #-------------------------------------------------------------------------------
 
-- finding_id: http-management-enabled
-  finding_title: Administrative Interface Accessible Over HTTP
-  theme: Administrative Security
+- finding_id: ids-not-configured
+  finding_title: Intrusion Detection Controls Not Configured
 
-  question: Is administrative access restricted to HTTPS only?
+  theme: Threat Protection
+  commentary_group: Threat Detection and Protection
+  section: threat_protection
+  remediation_id: logging_and_monitoring
 
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review the web management configuration and determine
-      whether HTTP access has been disabled. Confirm all
-      administrative access is performed over HTTPS using a
-      valid server certificate.
-
-  description: >
-    Administrative access to the platform was available over
-    unencrypted HTTP.
-
-  commentary: >
-    HTTP does not provide confidentiality or integrity
-    protection. Administrator credentials and session data may
-    be exposed to interception by an attacker with access to
-    the network path.
-
-  solution: >
-    Disable HTTP management access and enforce HTTPS for all
-    administrative activity.
-
-  positive: >
-    Administrative access is restricted to HTTPS.
-
-  good_value: >
-    HTTP is disabled and HTTPS is enforced.
-
-  bad_value: >
-    Administrative access is available over HTTP.
-
-- finding_id: excessive-session-timeout
-  finding_title: Administrative Session Timeout Not Appropriately Configured
-  theme: Administrative Security
-
-  question: Is the administrative session timeout configured appropriately?
+  question: Are intrusion detection controls configured to detect and respond 
+    to malicious SIP activity?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review the web management session settings and confirm
-      inactive administrative sessions are automatically
-      terminated after an appropriate period of inactivity.
+    common: |
+      Review intrusion detection settings and confirm the platform is 
+      configured to detect, alert on, and where appropriate block malicious 
+      SIP activity.
+
+    audiocodes: |
+      Setup > Signaling & Media tab > Intrusion Detection > IDS Policies
+
+      Review:
+
+      - IDS enabled status
+      - Applied IDS Policies
+      - IDS Rules
+      - Alarm thresholds
+      - Deny Threshold
+      - Deny Period
 
   description: >
-    Administrative sessions remained active for longer than
-    required.
+    Intrusion detection controls were not configured to detect or respond to 
+    malicious SIP activity.
 
   commentary: >
-    Excessive session timeouts increase the likelihood of
-    unauthorised access through unattended or abandoned
-    administrative sessions.
+    Internet-facing VoIP platforms are commonly targeted by authentication 
+    attacks, SIP scanning, malformed message attacks, denial-of-service 
+    attempts, and toll-fraud activity. Intrusion detection controls can assist 
+    in identifying and responding to malicious behaviour before it affects 
+    platform availability or security.
 
   solution: >
-    Configure an appropriate inactivity timeout to ensure
-    unused administrative sessions are automatically
-    terminated.
+    Enable intrusion detection functionality and configure policies that detect 
+    authentication failures, malformed SIP messages, connection abuse, dialog 
+    establishment failures, and other suspicious activity. Configure alerting 
+    and blocking thresholds appropriate to the deployment.
 
   positive: >
-    Administrative sessions are terminated following an
-    appropriate period of inactivity.
+    Intrusion detection controls were configured to detect and respond to 
+    malicious SIP activity.
 
-  good_value: >
-    Administrative session timeout is appropriately configured.
-
-  bad_value: >
-    Administrative sessions remain active for excessive periods.
-
-- finding_id: excessive-administrative-privileges
-  finding_title: Excessive Administrative Privileges
-  theme: Administrative Security
-
-  question: Is role-based access control used for administration?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review administrative accounts, roles, and assigned
-      permissions. Confirm administrators receive only the
-      privileges required to perform their responsibilities.
-
-  description: >
-    Administrative permissions were not assigned in accordance
-    with role-based access control principles.
-
-  commentary: >
-    Excessive administrative privileges increase the risk of
-    accidental misconfiguration, unauthorised changes, and
-    misuse of privileged accounts.
-
-  solution: >
-    Implement role-based access controls and align permissions
-    with least-privilege principles.
-
-  positive: >
-    Administrative access is managed using role-based access
-    controls.
-
-  good_value: >
-    Administrative permissions are assigned through defined roles.
-
-  bad_value: >
-    Administrative access is not restricted according to role.
-
-- finding_id: unrestricted-ssh-access
-  finding_title: SSH Access Not Appropriately Restricted
-  theme: Administrative Security
-
-  question: Is SSH access restricted to authorised administrators?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review SSH configuration and access controls. Confirm SSH
-      access is limited to authorised administrators and, where
-      possible, restricted to approved networks or management
-      workstations.
-
-  description: >
-    SSH access was not adequately restricted.
-
-  commentary: >
-    Unrestricted SSH access increases the attack surface of the
-    platform and provides additional opportunities for
-    unauthorised administrative access.
-
-  solution: >
-    Restrict SSH access to authorised administrators and
-    approved management networks.
-
-  positive: >
-    SSH access is restricted to authorised administrators.
-
-  good_value: >
-    SSH access is appropriately restricted.
-
-  bad_value: >
-    SSH access is broadly available.
-
-- finding_id: ssh-key-authentication-not-used
-  finding_title: SSH Key-Based Authentication Not Used
-  theme: Administrative Security
-
-  question: Is SSH configured to use key-based authentication where operationally feasible?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review SSH authentication settings and determine whether
-      SSH access relies on public/private key pairs rather than
-      passwords where operationally feasible.
-
-  description: >
-    SSH administration relied solely on password-based
-    authentication.
-
-  commentary: >
-    Password-based SSH authentication is generally more
-    susceptible to credential attacks than key-based
-    authentication. Public/private key authentication can
-    provide stronger assurance of administrator identity and
-    reduce the risk of credential compromise.
-
-  solution: >
-    Implement SSH key-based authentication for administrative
-    access where operationally feasible and operational
-    requirements permit.
-
-  positive: >
-    SSH administration uses key-based authentication.
-
-  good_value: >
-    SSH key-based authentication is used.
-
-  bad_value: >
-    SSH access relies solely on passwords.
+  expected_value: |
+    - Intrusion Detection functionality is enabled.
+    - One or more IDS Policies are configured and applied.
+    - Detection thresholds, alerting thresholds, or blocking thresholds are 
+    configured for relevant attack types.
+    - Default IDS policies are acceptable where appropriate for the deployment.
 
 #-------------------------------------------------------------------------------
-# Access Control Controls
+# MONITORING
 #-------------------------------------------------------------------------------
-
-- finding_id: excessive-administrative-access
-  finding_title: Administrative Access Not Restricted
-  theme: Access Control
-
-  question: Is administrative access restricted according to business requirements?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review administrative accounts, access permissions, trusted
-      hosts, and management access restrictions. Confirm only
-      authorised personnel are granted administrative access to
-      the platform.
-
-  description: >
-    Administrative access was granted beyond those with a
-    legitimate business requirement.
-
-  commentary: >
-    Excessive administrative access increases the risk of
-    unauthorised changes, accidental misconfiguration, and
-    misuse of privileged functionality. Access should be
-    assigned according to business requirements and
-    least-privilege principles.
-
-  solution: >
-    Review administrative access assignments and remove
-    unnecessary privileges. Restrict administrative access to
-    authorised personnel with a defined business requirement.
-
-  positive: >
-    Administrative access is restricted according to business
-    requirements.
-
-  good_value: >
-    Administrative access follows least-privilege principles.
-
-  bad_value: >
-    Excessive administrative access is permitted.
-
-- finding_id: insufficient-management-access-restrictions
-  finding_title: Management Access Not Adequately Restricted
-  theme: Access Control
-
-  question: Is management access restricted to approved systems or networks?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review firewall rules, trusted hosts, management
-      interfaces, and access control configuration. Confirm
-      management services are accessible only from approved
-      administrative systems or networks.
-
-  description: >
-    Administrative management services were accessible from
-    unnecessary systems or networks.
-
-  commentary: >
-    Restricting management access reduces the attack surface of
-    the platform and helps protect administrative interfaces from
-    unauthorised access attempts originating from internal or
-    external networks.
-
-  solution: >
-    Restrict management services to approved administrative
-    workstations, jump hosts, or management networks.
-
-  positive: >
-    Management access is restricted to approved systems and
-    networks.
-
-  good_value: >
-    Management access is appropriately restricted.
-
-  bad_value: >
-    Management services are broadly accessible.
-
-- finding_id: administrative-access-not-reviewed
-  finding_title: Administrative Access Not Periodically Reviewed
-  theme: Access Control
-
-  question: Is administrative access reviewed on a regular basis?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Determine how administrative access is reviewed, who
-      performs the review, and whether evidence of recent access
-      reviews can be provided.
-
-  description: >
-    Administrative access was not subject to periodic review.
-
-  commentary: >
-    Periodic access reviews help ensure privileged access remains
-    appropriate and limited to personnel with a legitimate
-    business requirement. They also assist in identifying dormant
-    accounts and excessive permissions.
-
-  solution: >
-    Establish a formal review process for privileged accounts and
-    administrative access permissions.
-
-  positive: >
-    Administrative access is reviewed regularly.
-
-  good_value: >
-    Access reviews are performed.
-
-  bad_value: >
-    Administrative access is not reviewed.
-
-#-------------------------------------------------------------------------------
-# Monitoring Controls
-#-------------------------------------------------------------------------------
-
-- finding_id: insufficient-logging
-  finding_title: Insufficient Logging and Monitoring
-  theme: Monitoring and Detection
-
-  question: Are security-relevant events logged and monitored?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Review logging and monitoring configuration to determine
-      whether authentication events, administrative activity,
-      configuration changes, system events, and security-relevant
-      activity are logged and monitored. Confirm whether logs are
-      integrated with a central monitoring platform where
-      applicable.
-
-  description: >
-    Security-relevant activity was not adequately logged or
-    monitored.
-
-  commentary: >
-    Insufficient logging reduces visibility of suspicious
-    activity, unauthorised access attempts, configuration
-    changes, and potential security incidents. Effective
-    monitoring supports timely detection and investigation of
-    security events.
-
-  solution: >
-    Enable logging for security-relevant events and establish
-    monitoring processes to review and investigate suspicious
-    activity.
-
-  positive: >
-    Security-relevant events are logged and monitored.
-
-  good_value: >
-    Logging and monitoring are implemented.
-
-  bad_value: >
-    Security-relevant activity is not adequately monitored.
 
 - finding_id: admin-activity-not-logged
   finding_title: Administrative Actions Not Logged
   theme: Monitoring and Detection
+  commentary_group: Logging and Monitoring
+  section: monitoring
+  remediation_id: logging_and_monitoring
 
-  question: Are administrative actions and configuration changes logged and retained?
+  question: Are administrative actions and configuration changes logged and 
+    retained?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Review audit logging configuration and confirm that
-      administrative actions, configuration changes, and
-      privileged account activity are recorded and retained for
-      investigation and accountability purposes.
+    common: |
+      Review audit logging configuration and confirm that administrative 
+      actions, configuration changes, and privileged account activity are 
+      recorded and retained for investigation and accountability purposes.
 
   description: >
-    Administrative activity was not adequately logged or
-    retained.
+    Administrative activity was not adequately logged or retained.
 
   commentary: >
-    Administrative logging provides accountability for privileged
-    actions and supports the investigation of security incidents,
-    configuration changes, and potential misuse of privileged
-    accounts.
+    Administrative logging provides accountability for privileged actions and 
+    supports the investigation of security incidents, configuration changes, 
+    and potential misuse of privileged accounts.
 
   solution: >
-    Enable audit logging for administrative activity and retain
-    logs in accordance with organisational monitoring and
-    retention requirements.
+    Enable audit logging for administrative activity and retain logs in 
+    accordance with organisational monitoring and retention requirements.
 
   positive: >
-    Administrative actions and configuration changes are logged
-    and retained appropriately.
+    Administrative actions and configuration changes were logged and retained 
+    appropriately.
 
-  good_value: >
-    Administrative activity is logged and retained.
+  expected_value: |
+    Administrative activity logging is enabled. Examples include:
 
-  bad_value: >
-    Administrative activity is not logged.
+    - Logon and logoff events
+    - Failed authentication attempts
+    - Configuration changes
+    - User management activity
+    - File uploads and downloads
+    - CLI activity
 
 - finding_id: logs-not-centrally-retained
   finding_title: Logs Not Centrally Retained or Protected
   theme: Monitoring and Detection
+  commentary_group: Logging and Monitoring
+  section: monitoring
+  remediation_id: logging_and_monitoring
 
   question: Are logs exported to a centralised and access-controlled location?
 
   expected_answer: compliant
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - AudioCodes
 
   hints:
-    common: >
-      Determine whether logs are forwarded to a central logging
-      platform, syslog server, SIEM, or other protected storage
-      location. Confirm access to logs is appropriately
-      restricted.
+    common: |
+      Determine whether logs are forwarded to an external logging platform and 
+      whether they are retained outside the local device. Evidence may include:
+
+      - Syslog server configuration
+      - SIEM integration
+      - Remote log collectors
+      - Central monitoring platforms
 
   description: >
-    Logs were stored locally only or were not adequately
-    protected from modification.
+    Logs were stored locally only or were not adequately protected from 
+    modification.
 
   commentary: >
-    Storing logs within the platform alone may increase the risk
-    of log loss, tampering, or unauthorised modification.
-    Centralised log retention improves resilience, availability,
-    and forensic value during incident investigations.
+    Storing logs within the platform alone may increase the risk of log loss, 
+    tampering, or unauthorised modification. Centralised log retention improves 
+    resilience, availability, and forensic value during incident investigations.
 
   solution: >
-    Forward logs to a centralised logging platform and restrict
-    access to authorised personnel.
+    Forward logs to a centralised logging platform and restrict access to 
+    authorised personnel.
 
   positive: >
-    Logs are exported to a centralised and access-controlled
-    repository.
+    Logs were exported to a centralised and access-controlled repository.
 
-  good_value: >
-    Logs are centrally retained and protected.
+  expected_value: |
+    Logs are exported to an external logging platform. Examples include:
 
-  bad_value: >
-    Logs are stored locally only or are insufficiently protected.
+    - Syslog server
+    - SIEM platform
+    - Central logging solution
 
-
-- finding_id: logs-not-periodically-reviewed
-  finding_title: Security Logs Not Periodically Reviewed
-  theme: Monitoring and Detection
-
-  question: Are logs reviewed on a regular basis?
-
-  expected_answer: compliant
-
-  vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-
-  hints:
-    common: >
-      Determine whether logs are regularly reviewed by
-      administrators or security personnel and whether evidence
-      of recent reviews can be provided.
-
-  description: >
-    Security logs were not subject to periodic review.
-
-  commentary: >
-    Collecting logs alone provides limited security value unless
-    they are reviewed for indicators of compromise,
-    misconfiguration, or suspicious activity. Regular reviews
-    help improve the likelihood of detecting security incidents
-    in a timely manner.
-
-  solution: >
-    Establish a documented process for reviewing security logs
-    and investigating anomalous events.
-
-  positive: >
-    Security logs are reviewed regularly.
-
-  good_value: >
-    Log reviews are performed.
-
-  bad_value: >
-    Security logs are not reviewed.
+    Evidence should identify the configured logging destination and confirm 
+    that logs are retained outside the local device.

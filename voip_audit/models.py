@@ -30,8 +30,7 @@ class VoIPPlatform(str, Enum):
     throughout the assessment process.
     """
 
-    AUDIOCODES_SBC = "AudioCodes SBC"
-    AUDIOCODES_GATEWAY = "AudioCodes Gateway"
+    AUDIOCODES = "AudioCodes"
     OTHER = "Other"
 
 
@@ -60,14 +59,41 @@ class AuditAnswer(str, Enum):
     UNKNOWN = "unknown"
 
 
+class VendorHints(BaseModel):
+    """
+    Vendor-specific navigation hints used to guide the assessor to the relevant 
+    configuration within supported VoIP platforms.
+
+    Hints may include:
+    - Evidence collection guidance
+    - Configuration locations
+    - Platform-specific navigation paths
+
+    These hints are intended to assist assessors in locating the relevant 
+    settings during a review and are displayed within the assessment workflow 
+    when available.
+    """
+
+    common: str | None = None
+
+    audiocodes: str | None = None
+    other: str | None = None
+
+
 class ContextField(BaseModel):
     """
     Defines a contextual information field collected before
     the assessment begins.
+
+    Context fields describe the reviewed environment,
+    including platform information, deployment details,
+    authentication services, and supporting infrastructure.
+
+    Fields are loaded dynamically from context_fields.yaml.
     """
 
     id: str
-
+    phase: str = "context"
     label: str
     type: str
 
@@ -75,7 +101,7 @@ class ContextField(BaseModel):
 
     options: list[str] | None = None
 
-    hints: dict[str, str] | None = None
+    hints: VendorHints | None = None
 
     vendors: list[str] = Field(default_factory=lambda: ["all"])
 
@@ -84,6 +110,12 @@ class ReviewContext(BaseModel):
     """
     Stores environment information gathered during the
     assessment context collection phase.
+
+    This information is used within exported reports and
+    provides the background information required to describe
+    the reviewed VoIP environment.
+
+    A single ReviewContext exists for each assessment.
     """
 
     client_name: str
@@ -106,6 +138,10 @@ class ReviewContext(BaseModel):
 class QuestionResponse(BaseModel):
     """
     Represents the assessor's response to a single question.
+
+    Responses are recorded regardless of whether a control
+    is compliant or non-compliant and provide a complete
+    audit trail of the assessment.
     """
 
     finding_id: str
@@ -135,6 +171,9 @@ class Question(BaseModel):
     finding_id: str
     finding_title: str
     theme: str
+    commentary_group: str
+    section: str
+    remediation_id: str | None = None
 
     expected_answer: AuditAnswer
 
@@ -145,10 +184,9 @@ class Question(BaseModel):
     solution: str
     positive: str
 
-    good_value: str
-    bad_value: str
+    expected_value: str
 
-    hints: dict[str, str] | None = None
+    hints: VendorHints | None = None
 
     vendors: list[str] = Field(default_factory=lambda: ["all"])
 
@@ -157,11 +195,27 @@ class Finding(BaseModel):
     """
     Represents a non-compliant control identified during
     the assessment.
-    """
 
+    Findings are created whenever a response does not match
+    the expected secure configuration defined by the
+    corresponding question.
+
+    Each finding contains:
+    - Finding identifier
+    - Control categorisation
+    - Description of the issue
+    - Technical commentary
+    - Recommended remediation
+    """
     finding_id: str
-    title: str
+
     theme: str
+    commentary_group: str
+
+    section: str
+    remediation_id: str | None = None
+
+    title: str
 
     description: str
     commentary: str
@@ -173,6 +227,11 @@ class Finding(BaseModel):
 class PositiveObservation(BaseModel):
     """
     Represents a successfully implemented security control.
+
+    Positive observations are generated when a control
+    meets the expected compliance requirements and help
+    demonstrate security strengths alongside identified
+    findings.
     """
 
     finding_id: str

@@ -12,27 +12,45 @@
   label: What is the organisation's name?
   type: string
   required: true
+  phase: setup
 
   vendors:
   - all
 
 - id: voip_solution
-  label: Which VoIP solution is being reviewed?
+  label: Which VoIP platform vendor is being reviewed?
   type: choice
   required: true
+  phase: setup
+
+  vendors:
+    - all
+
+  options:
+    - AudioCodes
+    - Other
+
+- id: device_type
+  label: Which VoIP platform component is being assessed?
+  type: choice
+  required: true
+  phase: context
 
   vendors:
   - all
 
   options:
-    - AudioCodes SBC
-    - AudioCodes Gateway
-    - Other
+    - Session Border Controller (SBC)
+    - Voice Gateway
+    - Private Branch Exchange (PBX) / Call Manager
+    - Cloud Voice Platform
+    - Mixed Environment
 
 - id: deployment_type
   label: How is the VoIP solution deployed?
   type: choice
   required: true
+  phase: context
 
   vendors:
   - all
@@ -43,25 +61,11 @@
     - Hybrid
     - Other
 
-- id: device_type
-  label: What type of VoIP component is primarily in scope?
-  type: choice
-  required: true
-
-  vendors:
-  - all
-
-  options:
-    - Session Border Controller (SBC)
-    - PBX / Call Manager
-    - Voice Gateway
-    - Cloud Telephony Platform
-    - Mixed Environment
-
 - id: identity_provider
   label: What is the primary identity provider / authentication source?
   type: choice
   required: true
+  phase: context
 
   vendors:
   - all
@@ -75,19 +79,67 @@
     - SAML / SSO
     - Other
 
+  hints:
+    common:
+      Identify the authentication source used for administrator access to the 
+      VoIP platform. This may differ from user authentication mechanisms used 
+      by telephony services.
+
 - id: sip_provider
-  label: Which SIP trunk provider is used?
+  label: Which telephony service provider (SIP trunk) is used?
   type: string
-  required: false
+  required: true
+  phase: context
 
   vendors:
   - all
 
+  hints:
+    common: 
+      Record the external SIP service provider used for PSTN connectivity.
+      Examples include BT, Gamma, Vodafone, Virgin Media Business, and others.
+
 - id: platform_model
-  label: What AudioCodes model is being reviewed?
+  label: What platform model is being reviewed?
   type: string
-  required: false
+  required: true
+  phase: context
 
   vendors:
-    - AudioCodes SBC
-    - AudioCodes Gateway
+    - all
+
+  hints:
+    common: 
+      Record the exact platform model (e.g. Mediant VE SBC, Mediant 800 SBC, 
+      Mediant 1000 Gateway, Cisco Unified Border Element, or an equivalent 
+      model).
+
+- id: software_version
+  label: What software version is installed?
+  type: string
+  required: true
+  phase: context
+
+  vendors:
+    - all
+
+  hints:
+    common:
+      Record the currently installed software, firmware, or operating system 
+      version where available. This information is used to assess platform 
+      supportability and patch status.
+
+- id: management_address
+  label: What is the primary management IP address, hostname, or URL?
+  type: string
+  required: true
+  phase: context
+
+  vendors:
+    - all
+
+  hints:
+    common: 
+      Record the primary management IP address, FQDN, or hostname used to 
+      administer the VoIP platform. This information is used for assessment 
+      scoping, evidence collection, and reporting purposes.

@@ -14,7 +14,8 @@ formats.
 """
 
 
-from voip_audit.constants import INITIAL_CONTEXT_FIELDS
+from rich.panel import Panel
+
 from voip_audit.models import (
     AssessmentResults,
     AuditAnswer,
@@ -33,14 +34,44 @@ from voip_audit.loader import (
 from voip_audit.ui import console
 
 
-def get_applicable_context_fields(
+def get_fields_by_phase(
     fields: list[ContextField],
+    phase: str,
 ) -> list[ContextField]:
     """
-    Return all context fields applicable to the assessment.
+    Return context fields belonging to the specified phase.
     """
 
-    return fields
+    return [
+        field
+        for field in fields
+        if field.phase == phase
+    ]
+
+
+def get_applicable_context_fields(
+    fields: list[ContextField],
+    platform: VoIPPlatform,
+) -> list[ContextField]:
+    """
+    Return context fields applicable to the selected
+    VoIP platform.
+    """
+
+    applicable_fields = []
+
+    for field in fields:
+
+        if any(
+            vendor.lower() == "all"
+            for vendor in field.vendors
+        ):
+            applicable_fields.append(field)
+
+        elif platform.value in field.vendors:
+            applicable_fields.append(field)
+
+    return applicable_fields
 
 
 def get_applicable_questions(
@@ -69,26 +100,78 @@ def get_applicable_questions(
 
 def collect_context(
     fields: list[ContextField],
+    responses: dict | None = None,
+    start: int = 1,
+    overall_total: int | None = None,
 ) -> dict:
     """
     Collect assessment context information.
+
+    Fields are presented dynamically based on the
+    selected assessment phase and applicable VoIP
+    platform.
     """
 
-    responses = {}
-    context_notes = {}
+    responses = responses or {}
 
-    for field in fields:
+    context_notes = responses.pop("_context_notes", {})
+
+    overall_total = overall_total or len(fields)
+
+    for current, field in enumerate(fields, start=start):
+
+        progress = max(
+            1,
+            int((current / overall_total) * 20),
+        )
+
+        bar = (
+            f"[green]{'█' * progress}[/green]"
+            f"[dim]{'░' * (20 - progress)}[/dim]"
+        )
 
         console.print()
+        console.print(
+            f"[bold cyan][CONTEXT {current}/{overall_total}][/bold cyan] "
+            f"{bar} "
+            f"[bold]{field.label}[/bold]"
+        )
+
+        platform_hint = None
+
+        if field.hints:
+
+            platform_name = responses.get("voip_solution")
+
+            if platform_name == VoIPPlatform.AUDIOCODES.value:
+                platform_hint = field.hints.audiocodes
+
+            elif platform_name == VoIPPlatform.OTHER.value:
+                platform_hint = field.hints.other
+
+            common_hint = field.hints.common
+
+            if common_hint:
+                console.print(
+                    Panel.fit(
+                        common_hint.strip(),
+                        title="Evidence",
+                        border_style="blue",
+                    )
+                )
+
+            if platform_hint:
+                console.print(
+                    Panel.fit(
+                        platform_hint.strip(),
+                        title="Location",
+                        border_style="yellow",
+                    )
+                )
 
         if field.type == "choice" and field.options:
 
-            console.print(f"\n[bold]{field.label}[/bold]")
-
-            for index, option in enumerate(
-                field.options,
-                start=1,
-            ):
+            for index, option in enumerate(field.options, start=1):
                 console.print(f"[cyan]{index}.[/cyan] {option}")
 
             while True:
@@ -103,28 +186,6 @@ def collect_context(
                     console.print("[red]Invalid selection.[/red]")
 
         else:
-
-            console.print(f"[bold]{field.label}[/bold]")
-
-            platform_name = responses.get("voip_solution")
-
-            if field.hints:
-
-                common_hint = field.hints.get("common")
-
-                if common_hint:
-                    console.print()
-                    console.print(f"[bold blue]Hint[/bold blue]\n{common_hint}")
-
-                if platform_name:
-                    platform_hint = field.hints.get(platform_name)
-
-                    if platform_hint:
-                        console.print(
-                            f"[bold yellow]Location[/bold yellow]\n"
-                            f"{platform_hint}"
-                        )
-
             value = input("> ").strip()
 
         if field.required:
@@ -132,7 +193,6 @@ def collect_context(
             while not value:
 
                 console.print("[red]This field is required.[/red]")
-
                 value = input("> ").strip()
 
         if field.type == "integer":
@@ -140,7 +200,6 @@ def collect_context(
             while True:
 
                 try:
-
                     value = int(value)
 
                     if value < 0:
@@ -149,10 +208,11 @@ def collect_context(
                     break
 
                 except ValueError:
+                    console.print("[red]Please enter a valid number.[/red]")
+                    value = input("> ").strip()
 
-                    value = input(f"{field.label} (enter a number): ")
-
-        console.print("[bold]Notes (optional):[/bold]")
+        console.print()
+        console.print("[dim]Notes (optional)[/dim]")
 
         notes = input("> ").strip() or None
 
@@ -180,25 +240,55 @@ def ask_question(
     platform_hint = None
 
     if question.hints:
-        common_hint = question.hints.get("common")
-        platform_hint = question.hints.get(platform.value)
+        common_hint = question.hints.common
+
+        if platform == VoIPPlatform.AUDIOCODES:
+            platform_hint = question.hints.audiocodes
+
+        elif platform == VoIPPlatform.OTHER:
+            platform_hint = question.hints.other
 
     console.print()
+
+    progress = max(1, int((current / total) * 20))
+
+    bar = (
+        f"[green]{'█' * progress}[/green]"
+        f"[dim]{'░' * (20 - progress)}[/dim]"
+    )
+
     console.print(
-        f"[bold cyan]Question {current}/{total}:[/bold cyan] "
+        f"[bold cyan][{current}/{total}][/bold cyan] "
+        f"{bar} "
         f"[bold]{question.question}[/bold]"
     )
+
     console.print()
 
     if common_hint:
-        console.print(f"[bold blue]Evidence[/bold blue]\n{common_hint}")
+        console.print(
+            Panel.fit(
+                common_hint.strip(),
+                title="Evidence",
+                border_style="blue",
+            )
+        )
 
     if platform_hint:
-        console.print(f"[bold yellow]Location[/bold yellow]\n{platform_hint}")
+        console.print(
+            Panel.fit(
+                platform_hint.strip(),
+                title="Location",
+                border_style="yellow",
+            )
+        )
 
     console.print(
-        f"[green]✓ {question.good_value}[/green]"
-        f"[red]✗ {question.bad_value}[/red]"
+        Panel.fit(
+            question.expected_value.strip(),
+            title="Expected Value",
+            border_style="green",
+        )
     )
 
     console.print("1. Compliant")
@@ -297,8 +387,11 @@ def generate_findings(
             findings.append(
                 Finding(
                     finding_id=question.finding_id,
-                    title=question.finding_title,
                     theme=question.theme,
+                    commentary_group=question.commentary_group,
+                    section=question.section,
+                    remediation_id=question.remediation_id,
+                    title=question.finding_title,
                     description=question.description.strip(),
                     commentary=question.commentary.strip(),
                     solution=question.solution.strip(),
@@ -379,32 +472,40 @@ def run_assessment() -> AssessmentResults:
 
     all_fields = load_context_fields()
 
-    initial_fields = [
-        field
-        for field in all_fields
-        if field.id in INITIAL_CONTEXT_FIELDS
-    ]
+    setup_fields = get_fields_by_phase(all_fields, "setup")
 
-    initial_responses = collect_context(initial_fields)
+    setup_responses = collect_context(setup_fields)
 
-    remaining_fields = [
-        field
-        for field in all_fields
-        if field.id not in INITIAL_CONTEXT_FIELDS
-    ]
+    platform = VoIPPlatform(setup_responses["voip_solution"])
 
-    remaining_responses = collect_context(
-        get_applicable_context_fields(remaining_fields)
+    context_fields = get_applicable_context_fields(
+        get_fields_by_phase(
+            all_fields,
+            "context",
+        ),
+        platform,
+    )
+
+    total_context_fields = (
+        len(setup_fields)
+        + len(context_fields)
+    )
+
+    context_responses = collect_context(
+        context_fields,
+        responses=setup_responses,
+        start=len(setup_fields) + 1,
+        overall_total=total_context_fields,
     )
 
     context_notes = {
-        **initial_responses.pop("_context_notes", {}),
-        **remaining_responses.pop("_context_notes", {}),
+        **setup_responses.pop("_context_notes", {}),
+        **context_responses.pop("_context_notes", {}),
     }
 
     responses = {
-        **initial_responses,
-        **remaining_responses,
+        **setup_responses,
+        **context_responses,
         "context_notes": context_notes,
     }
 
