@@ -118,9 +118,8 @@
     disrupt telephony services.
 
   solution: >
-    Configure multi-factor authentication as a mandatory control
-    for all administrative and privileged accounts where
-    supported.
+    Configure multi-factor authentication as a mandatory control for all 
+    administrative and privileged accounts where supported.
 
   positive: >
     Multi-factor authentication was enforced for administrative access.
@@ -446,8 +445,8 @@
     - Administrator
     - Security Administrator
 
-    Confirm role separation is used where appropriate and users are
-    not unnecessarily assigned Security Administrator privileges.
+    Confirm role separation is used where appropriate and users are not 
+    unnecessarily assigned Security Administrator privileges.
 
 - finding_id: excessive-session-timeout
   finding_title: Administrative Session Timeout Not Appropriately Configured
