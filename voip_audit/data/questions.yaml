@@ -95,7 +95,8 @@
   section: authentication
   remediation_id: identity_and_access_management
 
-  question: Is multi-factor authentication enforced for administrative access?
+  question: Is multi-factor authentication enforced for administrative access 
+    where supported?
 
   expected_answer: compliant
 
@@ -125,7 +126,16 @@
     Multi-factor authentication was enforced for administrative access.
 
   expected_value: |
-    Administrative MFA is enforced.
+    MFA is enforced for administrative access where supported by the
+    deployment architecture and authentication platform. Examples include:
+
+    - AudioCodes Live / IAM
+    - Federated identity providers
+    - SAML-based authentication
+    - Other MFA-capable authentication systems
+
+    For standalone on-premises AudioCodes devices using local administrative 
+    accounts only, native MFA may not be available.
 
 - finding_id: weak-password-policy
   finding_title: Weak Password Policy Configured
@@ -148,11 +158,9 @@
       are enforced for administrative accounts.
 
     audiocodes: |
-      Setup > Administration > Web & CLI > Local Users
+      Setup > Administration > Web & CLI > Local Users / Web Settings
 
-      Review Password complexity, Password history, Password age, and Weak 
-      password detection. Confirm strong password controls are enforced and weak
-      passwords are not permitted.
+      Review password complexity, history, age, and weak password detection.
 
   description: >
     Weak password controls were configured for administrative accounts.
@@ -170,7 +178,11 @@
     Strong password controls were enforced for administrative accounts.
 
   expected_value: |
-    Strong password controls are enforced
+    - Password complexity: Enable (1)
+    - Minimum password length: 8+ (default)
+    - Password history: Enable (1)
+    - Check weak passwords: Ticked (+ check the password list used)
+
 
 - finding_id: authentication-bruteforce-protection-not-configured
   finding_title: Authentication Brute-Force Protection Not Configured
@@ -299,7 +311,7 @@
 
   expected_value: |
     Review local accounts and confirm default accounts are secured or removed 
-    where appropriate (default accounts are Admin:Admin, User:User)
+    (default accounts are Admin:Admin, User:User)
 
 #-------------------------------------------------------------------------------
 # ADMINISTRATIVE SECURITY
@@ -337,7 +349,7 @@
     Administrative access to the platform was available over unencrypted HTTP.
 
   commentary: >
-    HTTP does not provide confidentiality or integrity protection.  
+    HTTP does not provide confidentiality or integrity protection. 
     Administrator credentials and session data may be exposed to interception 
     by an attacker with access to the network path.
 
@@ -359,8 +371,7 @@
   section: administrative_security
   remediation_id: administrative_interface_security
 
-  question: Is administrative CLI access restricted to secure 
-    protocols?
+  question: Is administrative CLI access restricted to secure protocols?
 
   expected_answer: compliant
 
@@ -490,6 +501,55 @@
   expected_value: |
     15 (default) or less
 
+- finding_id: web-hostname-not-enforced
+  finding_title: Web Management Hostname Enforcement Not Configured
+
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: administrative_interface_security
+
+  question: Is the web management interface configured to enforce access through a hostname?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review web management settings and determine whether a hostname
+      has been configured for the management interface and whether
+      hostname enforcement is enabled.
+
+    audiocodes: |
+      Setup > Administration > Web & CLI > Web Settings > Web Server Name / 
+      Enforce Web Host Name
+
+  description: >
+    The web management interface was accessible directly through its IP address 
+    and hostname enforcement was not configured.
+
+  commentary: >
+    Accessing administrative interfaces through an approved hostname can help 
+    reduce exposure to HTTP Host header attacks and DNS rebinding attacks. 
+    Direct IP-based access may bypass hostname-based protections and increase 
+    the risk of certain web application attack scenarios.
+
+  solution: >
+    Configure a dedicated hostname (FQDN) for the administrative web interface 
+    and enable hostname enforcement where operationally feasible. Ensure the 
+    hostname is correctly registered in DNS and administrative users access the 
+    platform using the approved hostname.
+
+  positive: >
+    The web management interface was configured with an approved hostname and 
+    hostname enforcement was enabled.
+
+  expected_value: |
+    - Web Server Name: not empty
+    - Enforce Web Host Name: Enable
+
 - finding_id: ssh-key-authentication-not-used
   finding_title: SSH Key-Based Authentication Not Used
   theme: Administrative Security
@@ -604,8 +664,7 @@
   section: access_control
   remediation_id: privileged_access_governance
 
-  question: Are dormant and administrative accounts periodically reviewed and
-    managed?
+  question: Are inactive administrative accounts identified and managed?
 
   expected_answer: compliant
 
@@ -614,36 +673,36 @@
 
   hints:
     common: |
-      Review administrative accounts for signs of dormancy, inactivity, or 
-      unnecessary access. Determine whether unused privileged accounts are 
-      identified and managed appropriately.
+      Review administrative accounts for signs of inactivity. Determine whether 
+      unused privileged accounts are identified and managed appropriately.
 
     audiocodes: |
-      Setup > Administration > Web & CLI > Local Users > Status / Inactivity 
-      Users
+      Setup > Administration > Web & CLI > Local Users > Status
+
+      Setup > Administration > Web & CLI > Web Settings
 
   description: >
-    Dormant, inactive, or unnecessary administrative accounts were not 
-    adequately reviewed or managed.
+    Dormant, inactive, or unnecessary administrative accounts were not
+    adequately identified or managed.
 
   commentary: >
     Privileged accounts that are no longer required may provide an unnecessary 
-    attack surface and increase the risk of unauthorised access. Periodic 
-    review of administrative accounts helps identify dormant users, excessive 
-    access, and accounts that no longer have a legitimate operational 
-    requirement.
+    attack surface and increase the risk of unauthorised access. The ability to 
+    identify inactive users helps administrators detect dormant accounts and 
+    manage access appropriately.
 
   solution: >
-    Periodically review administrative accounts and remove, disable, or 
-    otherwise manage dormant, inactive, and unnecessary privileged accounts.
+    Configure an appropriate User Inactivity Timeout and periodically review 
+    administrative accounts. Disable, remove, or otherwise manage dormant, 
+    inactive, and unnecessary privileged accounts.
 
   positive: >
-    Administrative accounts were actively reviewed and no unnecessary, dormant, 
-    or unexplained privileged accounts were identified.
+    Inactive administrative accounts were identifiable and no unnecessary, 
+    dormant, or unexplained privileged accounts were observed.
 
   expected_value: |
-    Administrative accounts are reviewed periodically. No unnecessary, dormant, 
-    inactive, unused, or unexplained privileged accounts are identified.
+    - User Inactivity Timeout:  90 or less
+    - No inactive privileged accounts are identified
 
 #-------------------------------------------------------------------------------
 # CRYPTOGRAPHY
@@ -815,15 +874,6 @@
     audiocodes: |
       Setup > Signaling & Media tab > Intrusion Detection > IDS Policies
 
-      Review:
-
-      - IDS enabled status
-      - Applied IDS Policies
-      - IDS Rules
-      - Alarm thresholds
-      - Deny Threshold
-      - Deny Period
-
   description: >
     Intrusion detection controls were not configured to detect or respond to 
     malicious SIP activity.
@@ -877,6 +927,10 @@
       actions, configuration changes, and privileged account activity are 
       recorded and retained for investigation and accountability purposes.
 
+    audiocodes: |
+      Settings > Troubleshoot tab > Troubleshoot menu > Logging folder > 
+      Logging Settings
+
   description: >
     Administrative activity was not adequately logged or retained.
 
@@ -894,14 +948,13 @@
     appropriately.
 
   expected_value: |
-    Administrative activity logging is enabled. Examples include:
-
-    - Logon and logoff events
-    - Failed authentication attempts
-    - Configuration changes
-    - User management activity
-    - File uploads and downloads
-    - CLI activity
+    The following are selected:
+    - Device Software Upgrade
+    - Non-Authorized Access
+    - Sensitive Parameters Value Change
+    - Login and Logout
+    - CLI Activity
+    - Action Executed
 
 - finding_id: logs-not-centrally-retained
   finding_title: Logs Not Centrally Retained or Protected
