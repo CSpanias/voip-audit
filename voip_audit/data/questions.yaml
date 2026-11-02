@@ -181,7 +181,7 @@
     - Password complexity: Enable (1)
     - Minimum password length: 8+ (default)
     - Password history: Enable (1)
-    - Check weak passwords: Ticked (+ check the password list used)
+    - Check weak passwords: Checked (also check the password list used)
 
 
 - finding_id: authentication-bruteforce-protection-not-configured
@@ -272,14 +272,14 @@
     Review configured user accounts and confirm access is assigned to named 
     individuals rather than shared accounts.
 
-- finding_id: default-or-unused-accounts-enabled
-  finding_title: Default or Unused Accounts Enabled
+- finding_id: default-accounts-enabled
+  finding_title: Default Accounts Enabled
   theme: Authentication
   commentary_group: Authentication and Identity
   section: authentication
   remediation_id: identity_and_access_management
 
-  question: Are default and unused local accounts disabled?
+  question: Are default accounts disabled or secured?
 
   expected_answer: compliant
 
@@ -287,31 +287,36 @@
     - AudioCodes
 
   hints:
-    common:
-      Review locally configured accounts and determine whether default, 
-      dormant, or otherwise unused accounts remain enabled on the platform.
+    common: |
+      Review locally configured accounts and determine whether any 
+      vendor-supplied default accounts remain enabled with default credentials.
 
     audiocodes: |
-      Setup > Administration tab > Web & CLI folder > Local Users
+      Setup > Administration > Web & CLI > Local Users
 
   description: >
-    Default or unused accounts remained enabled on the platform.
+    One or more default accounts remained enabled or were configured with 
+    default credentials.
 
   commentary: >
-    Unused accounts increase the attack surface of the platform and may provide 
-    unnecessary opportunities for unauthorised access. Accounts that are no 
-    longer required should be disabled or removed.
+    Default accounts are widely known, commonly documented, and may be targeted 
+    by attackers during unauthorised access attempts. If default credentials 
+    remain unchanged, an attacker may be able to obtain administrative access 
+    without needing to compromise a legitimate user account.
 
   solution: >
-    Disable or remove default and unused accounts that are not required for 
-    operational purposes.
+    Disable default accounts where they are not required. If a default account 
+    must remain enabled, ensure default credentials are replaced with strong 
+    unique credentials and that access is appropriately restricted and 
+    monitored.
 
   positive: >
-    Default and unused accounts had been disabled or removed.
+    Default accounts had been removed, disabled, or secured with non-default 
+    credentials.
 
   expected_value: |
-    Review local accounts and confirm default accounts are secured or removed 
-    (default accounts are Admin:Admin, User:User)
+    Review local accounts and confirm default accounts (Admin:Admin, User:User) 
+    are secured, disabled, or removed.
 
 #-------------------------------------------------------------------------------
 # ADMINISTRATIVE SECURITY
@@ -806,8 +811,8 @@
   section: cryptography
   remediation_id: cryptography_and_communications
 
-  question: Are SIP signalling and voice communications encrypted where 
-    supported?
+  question: Are SIP signalling (SIPS) and voice communications (SRTP) encrypted 
+    where supported?
 
   expected_answer: compliant
 
@@ -822,28 +827,36 @@
       systems and service providers.
 
     audiocodes: |
-      Setup menu > IP Network tab > Security folder > Security Settings
+      Setup > Signaling & Media > Media > Media Security (SRTP)
+
+      Setup > Signaling & Media > SIP Definitions > Transport Settings (SIPS)
 
   description: >
-    SIP signalling and/or voice communications were transmitted without 
-    encryption despite encryption capabilities being supported.
+    SIP signalling and/or RTP media traffic were transmitted without encryption 
+    despite support for SIPS and SRTP being available.
 
   commentary: >
-    Unencrypted signalling may expose call metadata, authentication 
-    information, and routing details to interception. Unencrypted voice 
-    communications may also be susceptible to eavesdropping by an attacker with 
-    access to the network path.
+    VoIP communications consist of SIP signalling and RTP media traffic. SIP 
+    signalling contains information used to establish and manage calls, while 
+    RTP carries the voice conversation itself.
+
+    Without SIPS (SIP over TLS), call metadata, routing information, and
+    authentication details may be exposed to interception or manipulation.
+    Without SRTP, voice conversations may be susceptible to eavesdropping by 
+    attackers with access to the network path.
 
   solution: >
-    Enable TLS for SIP signalling and SRTP for voice media
-    wherever supported by connected platforms, gateways, and
+    Enable SIPS (SIP over TLS) for SIP signalling and Secure RTP (SRTP) for 
+    voice media wherever supported by connected platforms, gateways, PBXs, and 
     service providers.
 
   positive: >
-    SIP signalling and voice communications were encrypted where supported.
+    SIP signalling was protected using SIPS and voice media was protected using 
+    SRTP where supported by connected systems.
 
   expected_value: |
-    TLS and SRTP are enabled where supported.
+    - Media Security: Enable (SRTP)
+    - SIPS: Enable (SIPS)
 
 #-------------------------------------------------------------------------------
 # THREAT PROTECTION
@@ -872,7 +885,8 @@
       SIP activity.
 
     audiocodes: |
-      Setup > Signaling & Media tab > Intrusion Detection > IDS Policies
+      Setup > Signaling & Media > Intrusion Detection > IDS General Settings / 
+      IDS Policies
 
   description: >
     Intrusion detection controls were not configured to detect or respond to 
@@ -896,25 +910,22 @@
     malicious SIP activity.
 
   expected_value: |
-    - Intrusion Detection functionality is enabled.
+    - Intrusion Detection System (IDS): Enable
     - One or more IDS Policies are configured and applied.
-    - Detection thresholds, alerting thresholds, or blocking thresholds are 
-    configured for relevant attack types.
-    - Default IDS policies are acceptable where appropriate for the deployment.
 
 #-------------------------------------------------------------------------------
 # MONITORING
 #-------------------------------------------------------------------------------
 
-- finding_id: admin-activity-not-logged
-  finding_title: Administrative Actions Not Logged
+- finding_id: security-relevant-events-not-logged
+  finding_title: Security-Relevant Events Not Logged
   theme: Monitoring and Detection
   commentary_group: Logging and Monitoring
   section: monitoring
   remediation_id: logging_and_monitoring
 
-  question: Are administrative actions and configuration changes logged and 
-    retained?
+  question: Are security-relevant events, administrative actions, and
+    configuration changes logged and retained?
 
   expected_answer: compliant
 
@@ -928,24 +939,25 @@
       recorded and retained for investigation and accountability purposes.
 
     audiocodes: |
-      Settings > Troubleshoot tab > Troubleshoot menu > Logging folder > 
-      Logging Settings
+      Settings > Troubleshoot > Troubleshoot > Logging > Logging Settings
 
   description: >
     Administrative activity was not adequately logged or retained.
 
   commentary: >
-    Administrative logging provides accountability for privileged actions and 
-    supports the investigation of security incidents, configuration changes, 
-    and potential misuse of privileged accounts.
+    Audit logging provides visibility into authentication events, 
+    administrative activity, configuration changes, software updates, and 
+    security-relevant events. Comprehensive logging supports accountability, 
+    security monitoring, incident response, and forensic investigation 
+    following suspicious or unauthorised activity.
 
   solution: >
     Enable audit logging for administrative activity and retain logs in 
     accordance with organisational monitoring and retention requirements.
 
   positive: >
-    Administrative actions and configuration changes were logged and retained 
-    appropriately.
+    Security-relevant events, administrative activity, and configuration 
+    changes were logged and retained appropriately.
 
   expected_value: |
     The following are selected:
@@ -956,8 +968,8 @@
     - CLI Activity
     - Action Executed
 
-- finding_id: logs-not-centrally-retained
-  finding_title: Logs Not Centrally Retained or Protected
+- finding_id: logs-not-centrally-exported
+  finding_title: Security Logs Not Exported to Central Monitoring Platform
   theme: Monitoring and Detection
   commentary_group: Logging and Monitoring
   section: monitoring
@@ -985,9 +997,10 @@
     modification.
 
   commentary: >
-    Storing logs within the platform alone may increase the risk of log loss, 
-    tampering, or unauthorised modification. Centralised log retention improves 
-    resilience, availability, and forensic value during incident investigations.
+    Centralised log collection improves the ability to detect andinvestigate 
+    security incidents affecting VoIP infrastructure. Authentication events, 
+    configuration changes, administrative activity, and intrusion detection 
+    alerts may be lost if logs are retained only on the local device.
 
   solution: >
     Forward logs to a centralised logging platform and restrict access to 
