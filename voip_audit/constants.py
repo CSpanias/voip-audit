@@ -12,6 +12,7 @@ THEMES = [
     "Cryptography",
     "Access Control",
     "Administrative Security",
+    "Threat Protection",
     "Monitoring and Detection",
 ]
 
@@ -32,6 +33,9 @@ THEME_DISPLAY = {
     "Administrative Security":
         "administrative security",
 
+    "Threat Protection":
+        "threat detection and protection",
+
     "Monitoring and Detection":
         "logging and monitoring",
 }
@@ -47,6 +51,7 @@ COMMENTARY_ORDER = [
     "Cryptography and Communications Security",
     "Administrative Interface Security",
     "Administrative Access Control",
+    "Threat Detection and Protection",
     "Logging and Monitoring",
 ]
 
@@ -81,6 +86,12 @@ COMMENTARY_SUMMARIES = {
         "administrative access."
     ),
 
+    "Threat Detection and Protection": (
+        "The review identified opportunities to improve the detection "
+        "and prevention of malicious activity targeting the VoIP "
+        "environment."
+    ),
+
     "Logging and Monitoring": (
         "The review highlighted weaknesses affecting the monitoring, "
         "logging, and detection capabilities of the assessed VoIP "
@@ -94,19 +105,22 @@ COMMENTARY_INTROS = {
         "The assessment identified that ",
 
     "Authentication and Identity":
-        "Specific observations included that ",
+        "Review of authentication controls determined that ",
 
     "Cryptography and Communications Security":
-        "The review noted that ",
+        "The assessment noted that ",
 
     "Administrative Interface Security":
-        "Further observations identified that ",
+        "Further assessment identified that ",
 
     "Administrative Access Control":
-        "The assessment observed that ",
+        "The review observed that ",
+
+    "Threat Detection and Protection":
+        "The assessment found that ",
 
     "Logging and Monitoring":
-        "The assessment identified that ",
+        "The review highlighted that ",
 }
 
 
@@ -131,9 +145,11 @@ REMEDIATIONS = {
 
     "administrative_interface_security": (
         "Strengthen the security of administrative interfaces by "
-        "enforcing HTTPS, restricting SSH access, implementing "
-        "key-based authentication, and configuring appropriate "
-        "session timeout controls."
+        "enforcing HTTPS, restricting management access, "
+        "implementing SSH key-based authentication where "
+        "appropriate, configuring hostname enforcement for web "
+        "administration, and applying suitable session timeout "
+        "controls."
     ),
 
     "privileged_access_governance": (
