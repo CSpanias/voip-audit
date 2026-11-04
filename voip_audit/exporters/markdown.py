@@ -8,10 +8,11 @@ executive summary, commentary, and remediation guidance.
 from pathlib import Path
 
 from voip_audit.constants import(
-    THEMES, 
-    THEME_DISPLAY,
+    TITLE_REWRITES,
+    POSITIVE_REWRITES,
     COMMENTARY_ORDER,
     COMMENTARY_SUMMARIES,
+    THEME_REWRITES,
     COMMENTARY_INTROS,
     REMEDIATIONS,
     REFERENCES,
@@ -58,8 +59,16 @@ def _generate_assessment_context(
     if context.platform_model:
         lines.append(f"| Platform Model | {context.platform_model} |")
 
+    if context.software_version:
+        lines.append(f"| Software Version | {context.software_version} |")
+
     if context.deployment_type:
         lines.append(f"| Deployment Type | {context.deployment_type} |")
+
+    if context.management_address:
+        lines.append(
+            f"| Management Interfaces | {context.management_address} |"
+        )
 
     if context.identity_provider:
         lines.append(f"| Identity Provider | {context.identity_provider} |")
@@ -73,13 +82,38 @@ def _generate_assessment_context(
     return lines
 
 
-def _get_identified_themes(
+def _get_top_findings(
     results: AssessmentResults,
 ) -> list[str]:
 
-    identified = {finding.theme for finding in results.findings}
+    groups = _group_findings(results.findings)
 
-    return [theme for theme in THEMES if theme in identified]
+    return [
+        THEME_REWRITES.get(
+            group_name,
+            group_name.lower(),
+        )
+        for group_name in groups
+    ]
+
+
+def _get_top_positives(
+    results: AssessmentResults,
+    limit: int = 4,
+) -> list[str]:
+
+    items = []
+
+    for positive in results.positives[:limit]:
+
+        items.append(
+            POSITIVE_REWRITES.get(
+                positive.finding_id,
+                positive.text.strip().rstrip(".").lower(),
+            )
+        )
+
+    return sorted(set(items))
 
 
 def _get_security_posture(
@@ -136,8 +170,6 @@ def _generate_executive_summary(
 
     scope = _get_review_scope(results)
 
-    themes = _get_identified_themes(results)
-
     lines.append("## Executive Summary")
     lines.append("")
 
@@ -165,7 +197,7 @@ def _generate_executive_summary(
         )
 
     lines.append(
-        "A Voice over Internal Protocol (VoIP) security configuration review "
+        "A Voice over Internet Protocol (VoIP) security configuration review "
         f"was conducted for the {results.context.client_name} environment "
         f"covering the {scope}. The assessment considered authentication "
         "controls, cryptographic standards, access control mechanisms, "
@@ -179,22 +211,27 @@ def _generate_executive_summary(
     #---------------------------------------------------------------------------
     # Second Paragraph (High-Level Findings)
     #---------------------------------------------------------------------------
-    if themes:
+    top_findings = _get_top_findings(results)
 
-        theme_text = _format_list(
-            [
-                THEME_DISPLAY.get(theme, theme.lower())
-                for theme in themes
-            ]
-        )
+    if top_findings:
 
         lines.append(
-            f"The most significant observations related to "
-            f"{theme_text}. Collectively, the identified "
-            "weaknesses reduced assurance that administrative "
-            "access, communications security, platform "
-            "configuration, and monitoring controls were being "
-            "implemented and governed in a consistent manner."
+            "The most significant observations included "
+            f"{_format_list(top_findings)}. Collectively, these issues reduced "
+            "assurance that administrative access, communications security, "
+            "monitoring controls, and privileged access management practices "
+            "were operating effectively throughout the VoIP environment."
+        )
+
+        lines.append("")
+
+    top_positives = _get_top_positives(results)
+
+    if top_positives:
+
+        lines.append(
+            "The assessment also identified several positive security "
+            f"practices, including {_format_list(top_positives)}."
         )
 
         lines.append("")
@@ -240,6 +277,62 @@ def _generate_executive_summary(
 # COMMENTARY
 #-------------------------------------------------------------------------------
 
+def _generate_commentary_overview(
+    results: AssessmentResults,
+) -> str:
+
+    groups = _group_findings(results.findings)
+
+    themes = []
+
+    for group_name in groups:
+
+        themes.append(
+            COMMENTARY_OVERVIEW_THEMES.get(
+                group_name,
+                group_name.lower(),
+            )
+        )
+
+    return (
+        "The assessment identified several opportunities to improve the "
+        "security posture of the VoIP environment, primarily relating to "
+        f"{_format_list(themes)}."
+    )
+
+
+def _generate_positive_observations(
+    results: AssessmentResults,
+) -> list[str]:
+    """
+    Generate the positive observations section.
+    """
+
+    if not results.positives:
+        return []
+
+    lines = []
+
+    lines.append("### Positive Observations")
+    lines.append("")
+
+    lines.append(
+        "The assessment also identified several positive security "
+        "practices within the assessed VoIP environment:"
+    )
+    lines.append("")
+
+    for finding in sorted(
+        results.positives,
+        key=lambda x: x.finding_id,
+    ):
+        lines.append(f"- {finding.text}")
+
+    lines.append("")
+
+    return lines
+
+
 def _group_findings(
     findings,
 ) -> dict[str, list]:
@@ -275,52 +368,51 @@ def _group_findings(
 def _get_observation_summary(
     findings: list,
 ) -> str:
-    """
-    Build a concise summary of the observations identified within a finding 
-    group.
-
-    The first sentence from each finding commentary is extracted, normalised, 
-    de-duplicated, and combined into a single narrative statement for use 
-    within the technical commentary section.
-    """
 
     observations = []
 
     for finding in findings:
 
-        sentence = (finding.commentary.strip().split(".")[0].strip())
+        observations.append(
+            TITLE_REWRITES.get(
+                finding.finding_id,
+                finding.title.lower(),
+            )
+        )
 
-        if (sentence and not sentence.split()[0].isupper()):
-
-            sentence = sentence[0].lower() + sentence[1:]
-
-        observations.append(sentence)
-
-    observations = sorted(set(observations))
-
-    return _format_list(observations)
+    return _format_list(sorted(set(observations)))
 
 
 def _build_group_commentary(
     group_name: str,
     findings: list,
 ) -> str:
-    """
-    Generate narrative commentary for a group of findings.
-    """
 
     summary = COMMENTARY_SUMMARIES[group_name]
-
     intro = COMMENTARY_INTROS[group_name]
 
-    observations = _get_observation_summary(
-        findings
-    )
+    observations = _get_observation_summary(findings)
+    impact = _get_commentary_impact(findings)
+    impact = impact.strip()
 
     return (
         f"{summary} "
-        f"{intro}{observations}."
+        f"{intro}{observations}. "
+        f"{impact}"
     )
+
+
+def _get_commentary_impact(
+    findings: list,
+) -> str:
+
+    impacts = []
+
+    for finding in findings:
+
+        impacts.append(finding.commentary.strip())
+
+    return " ".join(dict.fromkeys(impacts))
 
 
 def _generate_commentary(
@@ -350,19 +442,59 @@ def _generate_commentary(
 
     lines.append("")
 
-    # Findings
+    lines.append(_generate_commentary_overview(results))
+
+    lines.append("")
+
     grouped_findings = _group_findings(results.findings)
 
     for group_name, findings in grouped_findings.items():
 
-        lines.append(_build_group_commentary(group_name, findings))
+        lines.append(
+            _build_group_commentary(
+                group_name,
+                findings,
+            )
+        )
+
         lines.append("")
+
+    lines.extend(_generate_positive_observations(results))
 
     return lines
 
 #-------------------------------------------------------------------------------
 # REMEDIATION
 #-------------------------------------------------------------------------------
+
+def _generate_priority_recommendations(
+    results: AssessmentResults,
+) -> list[str]:
+
+    if not results.findings:
+        return []
+
+    lines = []
+
+    lines.append("### Priority Recommendations")
+    lines.append("")
+
+    seen = set()
+
+    for finding in results.findings:
+
+        recommendation = (finding.solution.strip())
+
+        if recommendation in seen:
+            continue
+
+        seen.add(recommendation)
+        lines.append(f"- {recommendation}")
+
+    lines.append("")
+
+    return lines
+
 
 def _generate_remediation(
     results: AssessmentResults,
@@ -375,6 +507,8 @@ def _generate_remediation(
 
     lines.append("## Remediation")
     lines.append("")
+
+    lines.extend(_generate_priority_recommendations(results))
 
     if not results.findings:
         lines.append("No remediation actions are currently required.")

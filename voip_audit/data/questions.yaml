@@ -43,7 +43,8 @@
   section: platform_configuration
   remediation_id: platform_lifecycle
 
-  question: Is the AudioCodes platform running a supported software version?
+  question: |
+    Is the AudioCodes platform running a vendor-supported software version?
 
   expected_answer: compliant
 
@@ -56,33 +57,37 @@
       Confirm the platform is running a vendor-supported software release.
 
     audiocodes: |
-      Navigate to the system information or software version page and review 
-      the installed firmware version. Confirm the release is supported by 
-      AudioCodes and that current security updates have been applied.
+      Monitor > Device Information > Version ID
 
-  description: >
-    The AudioCodes platform was running unsupported, end-of-life, or 
-    insufficiently patched software.
-
-  commentary: >
-    Outdated VoIP infrastructure may be exposed to publicly known security 
-    vulnerabilities and may no longer receive security updates from the vendor. 
-    As VoIP platforms often process business-critical communications and may be 
-    accessible from untrusted networks, exploitation of known vulnerabilities 
-    could result in unauthorised access, service disruption, fraud, or 
-    compromise of administrative functions.
-
-  solution: >
-    Establish a lifecycle management process to ensure the AudioCodes platform 
-    remains supported, maintained, and fully patched in accordance with vendor 
-    guidance.
-
-  positive: >
-    The assessed AudioCodes platform was running a supported and fully patched 
-    software version.
+      Check: https://www.audiocodes.com/media/h3yfqroz/sbc-gateway-release-notes-for-long-term-support-lts-versions-740a500.pdf
 
   expected_value: |
     The platform is running a supported and fully patched software version.
+
+    Preference should be given to the current supported Long-TermSupport (LTS) 
+    release stream where applicable.
+
+  description: >
+    The AudioCodes platform was running an unsupported or end-of-life software 
+    version.
+
+  commentary: >
+    Software versions that are no longer supported by the vendor may contain 
+    publicly known vulnerabilities and may no longer receive security updates, 
+    bug fixes, or technical support. As VoIP platforms often process 
+    business-critical communications and may be accessible from untrusted 
+    networks, unsupported software can increase the risk of unauthorised 
+    access, service disruption, fraud, and compromise of administrative 
+    functions.
+
+  positive: >
+    The assessed AudioCodes platform was running a vendor-supported software 
+    version.
+
+  solution: >
+    Establish a lifecycle management process to ensure the AudioCodes platform 
+    remains within a vendor-supported software lifecycle and is upgraded in 
+    accordance with vendor guidance.
 
 #-------------------------------------------------------------------------------
 # AUTHENTICATION
@@ -105,9 +110,27 @@
 
   hints:
       common: |
-        Review the authentication requirements for administrative access to the 
-        AudioCodes platform and confirm whether privileged users are required 
-        to complete multi-factor authentication.
+        Determine whether administrative authentication is performed using 
+        local AudioCodes accounts or through an external identity provider.
+
+        If administrative access relies solely on local AudioCodes accounts, 
+        MFA may not be supported and the control may be assessed as 
+        Not Applicable.
+
+  expected_value: |
+    MFA is enforced for administrative access where the deployment architecture 
+    provides MFA capability.
+
+    Examples include:
+    - AudioCodes Live / IAM
+    - Federated identity providers
+    - SAML-based authentication
+    - Entra ID integrations
+    - Other MFA-capable authentication systems
+
+    Standalone on-premises deployments using local AudioCodes administrative 
+    accounts may not support MFA natively and may therefore be assessed as 
+    Not Applicable.
 
   description: >
     Multi-factor authentication was not enforced for administrative accounts.
@@ -118,24 +141,12 @@
     configurations, weaken security controls, intercept communications, or 
     disrupt telephony services.
 
-  solution: >
-    Configure multi-factor authentication as a mandatory control for all 
-    administrative and privileged accounts where supported.
-
   positive: >
     Multi-factor authentication was enforced for administrative access.
 
-  expected_value: |
-    MFA is enforced for administrative access where supported by the
-    deployment architecture and authentication platform. Examples include:
-
-    - AudioCodes Live / IAM
-    - Federated identity providers
-    - SAML-based authentication
-    - Other MFA-capable authentication systems
-
-    For standalone on-premises AudioCodes devices using local administrative 
-    accounts only, native MFA may not be available.
+  solution: >
+    Configure multi-factor authentication as a mandatory control for all 
+    administrative and privileged accounts where supported.
 
 - finding_id: weak-password-policy
   finding_title: Weak Password Policy Configured
@@ -162,6 +173,12 @@
 
       Review password complexity, history, age, and weak password detection.
 
+  expected_value: |
+    - Password complexity: Enable (1)
+    - Minimum password length: 8+ (default)
+    - Password history: Enable (1)
+    - Check weak passwords: Checked (also check the password list used)
+
   description: >
     Weak password controls were configured for administrative accounts.
 
@@ -170,19 +187,12 @@
     through password guessing, reuse, or brute-force attacks. Administrative 
     accounts should be protected by strong password controls.
 
-  solution: >
-    Enforce strong password complexity requirements, prevent password reuse, 
-    and implement controls that identify or restrict the use of weak passwords.
-
   positive: >
     Strong password controls were enforced for administrative accounts.
 
-  expected_value: |
-    - Password complexity: Enable (1)
-    - Minimum password length: 8+ (default)
-    - Password history: Enable (1)
-    - Check weak passwords: Checked (also check the password list used)
-
+  solution: >
+    Enforce strong password complexity requirements, prevent password reuse, 
+    and implement controls that identify or restrict the use of weak passwords.
 
 - finding_id: authentication-bruteforce-protection-not-configured
   finding_title: Authentication Brute-Force Protection Not Configured
@@ -210,6 +220,11 @@
       Setup > Administration > Web & CLI > Web Settings > Security > Deny 
       Authentication Timer / Deny Access On Fail Count 
 
+  expected_value: |
+    - Deny Authentication Timer (IP-based) and Deny Access On Fail Count are 
+      configured (Not 0)
+    - Block Duration (account-based) is configured
+
   description: >
     Protections against repeated authentication failures were not configured.
 
@@ -217,19 +232,14 @@
     Without brute-force protection controls, administrative accounts may be 
     vulnerable to password guessing and automated authentication attacks.
 
-  solution: >
-    Implement authentication protection mechanisms such as account lockout, 
-    authentication throttling, back-off timers, or temporary source 
-    restrictions following repeated failed login attempts.
-
   positive: >
     Protections were implemented against repeated failed authentication 
     attempts.
 
-  expected_value: |
-    - Deny Authentication Timer (IP-based) and Deny Access On Fail Count are 
-      configured (Not 0)
-    - Block Duration (account-based) is configured
+  solution: >
+    Implement authentication protection mechanisms such as account lockout, 
+    authentication throttling, back-off timers, or temporary source 
+    restrictions following repeated failed login attempts.
 
 - finding_id: shared-accounts-permitted
   finding_title: Shared Accounts Permitted
@@ -253,33 +263,34 @@
     audiocodes: >
       Setup > Administration tab > Web & CLI folder > Local Users
 
+  expected_value: |
+    Review configured user accounts and confirm access is assigned to named 
+    individuals rather than shared accounts.
+
   description: >
     Shared administrative accounts were permitted.
 
   commentary: >
-    Shared accounts reduce accountability and make it difficult to attribute 
-    administrative actions to specific individuals. This may hinder 
-    investigations and weaken audit controls.
+    Shared administrative accounts prevent the attribution of administrative 
+    actions to specific individuals. As multiple users authenticate using the 
+    same identity, accountability, change tracking, and incident investigation 
+    activities become more difficult.
+
+  positive: >
+    Administrative access was performed using uniquely assigned accounts.
 
   solution: >
     Replace shared accounts with uniquely assigned administrator accounts to 
     improve accountability and auditability.
 
-  positive: >
-    Administrative access was performed using uniquely assigned accounts.
-
-  expected_value: |
-    Review configured user accounts and confirm access is assigned to named 
-    individuals rather than shared accounts.
-
-- finding_id: default-accounts-enabled
-  finding_title: Default Accounts Enabled
+- finding_id: default-accounts-insecured
+  finding_title: Default Accounts Not Secured
   theme: Authentication
   commentary_group: Authentication and Identity
   section: authentication
   remediation_id: identity_and_access_management
 
-  question: Are default accounts disabled or secured?
+  question: Are default accounts secured?
 
   expected_answer: compliant
 
@@ -304,15 +315,15 @@
     remain unchanged, an attacker may be able to obtain administrative access 
     without needing to compromise a legitimate user account.
 
+  positive: >
+    Default accounts were either removed, disabled, or secured with non-default 
+    credentials.
+
   solution: >
     Disable default accounts where they are not required. If a default account 
     must remain enabled, ensure default credentials are replaced with strong 
     unique credentials and that access is appropriately restricted and 
     monitored.
-
-  positive: >
-    Default accounts had been removed, disabled, or secured with non-default 
-    credentials.
 
   expected_value: |
     Review local accounts and confirm default accounts (Admin:Admin, User:User) 
@@ -350,6 +361,9 @@
     audiocodes: |
       Setup > Administration tab > Web & CLI folder > Web Interfaces
 
+  expected_value: |
+    HTTPS Only
+
   description: >
     Administrative access to the platform was available over unencrypted HTTP.
 
@@ -358,15 +372,12 @@
     Administrator credentials and session data may be exposed to interception 
     by an attacker with access to the network path.
 
-  solution: >
-    Disable HTTP management access and enforce HTTPS for all administrative 
-    activity.
-
   positive: >
     Administrative access was restricted to HTTPS.
 
-  expected_value: |
-    HTTPS Only
+  solution: >
+    Disable HTTP management access and enforce HTTPS for all administrative 
+    activity.
 
 - finding_id: insecure-cli-access-enabled
   finding_title: Insecure Administrative CLI Access Enabled
@@ -393,6 +404,9 @@
       Setup menu > Administration tab > Web & CLI folder > Telnet / SSH 
       Interfaces
 
+  expected_value: |
+    SSH enabled, Telnet disabled
+
   description: >
     An insecure management protocol was enabled for CLI administration.
 
@@ -401,15 +415,12 @@
     protection. Administrative credentials and management traffic may be 
     exposed to interception by attackers with network access.
 
-  solution: >
-    Restrict SSH access to authorised administrators and approved management 
-    networks.
-
   positive: >
     Administrative CLI access was restricted to secure protocols.
 
-  expected_value: |
-    SSH enabled, Telnet disabled
+  solution: >
+    Restrict SSH access to authorised administrators and approved management 
+    networks.
 
 - finding_id: excessive-administrative-privileges
   finding_title: Administrative Accounts Not Assigned Appropriate Roles
@@ -434,6 +445,16 @@
     audiocodes: |
       Setup > Administration tab > Web & CLI folder > Local Users
 
+  expected_value: |
+    Review User Levels:
+
+    - Monitor
+    - Administrator
+    - Security Administrator
+
+    Confirm role separation is used where appropriate and users are not 
+    unnecessarily assigned Security Administrator privileges.
+
   description: >
     Administrative accounts were assigned excessive privilege levels or role 
     separation was not effectively utilised.
@@ -445,24 +466,14 @@
     access to only the administrative capabilities required for their 
     responsibilities.
 
+  positive: >
+    Administrative accounts were assigned appropriate built-in roles.
+
   solution: >
     Review management user accounts and assign the lowest privilege level 
     necessary. Use the built-in Monitor, Administrator, and Security 
     Administrator roles to separate administrative responsibilities where 
     appropriate.
-
-  positive: >
-    Administrative accounts were assigned appropriate built-in roles.
-
-  expected_value: |
-    Review User Levels:
-
-    - Monitor
-    - Administrator
-    - Security Administrator
-
-    Confirm role separation is used where appropriate and users are not 
-    unnecessarily assigned Security Administrator privileges.
 
 - finding_id: excessive-session-timeout
   finding_title: Administrative Session Timeout Not Appropriately Configured
@@ -488,6 +499,9 @@
       Setup > Administration tab > Web & CLI folder > Local Users > Web Session 
       Timeout
 
+  expected_value: |
+    15 (default) or less
+
   description: >
     Administrative sessions remained active for longer than required.
 
@@ -495,16 +509,13 @@
     Excessive session timeouts increase the likelihood of unauthorised access 
     through unattended or abandoned administrative sessions.
 
-  solution: >
-    Configure an appropriate inactivity timeout to ensure unused administrative 
-    sessions are automatically terminated.
-
   positive: >
     Administrative sessions were terminated following an appropriate period of 
     inactivity.
 
-  expected_value: |
-    15 (default) or less
+  solution: >
+    Configure an appropriate inactivity timeout to ensure unused administrative 
+    sessions are automatically terminated.
 
 - finding_id: web-hostname-not-enforced
   finding_title: Web Management Hostname Enforcement Not Configured
@@ -532,6 +543,10 @@
       Setup > Administration > Web & CLI > Web Settings > Web Server Name / 
       Enforce Web Host Name
 
+  expected_value: |
+    - Web Server Name: not empty
+    - Enforce Web Host Name: Enable
+
   description: >
     The web management interface was accessible directly through its IP address 
     and hostname enforcement was not configured.
@@ -542,19 +557,15 @@
     Direct IP-based access may bypass hostname-based protections and increase 
     the risk of certain web application attack scenarios.
 
+  positive: >
+    The web management interface was configured with an approved hostname and 
+    hostname enforcement was enabled.
+
   solution: >
     Configure a dedicated hostname (FQDN) for the administrative web interface 
     and enable hostname enforcement where operationally feasible. Ensure the 
     hostname is correctly registered in DNS and administrative users access the 
     platform using the approved hostname.
-
-  positive: >
-    The web management interface was configured with an approved hostname and 
-    hostname enforcement was enabled.
-
-  expected_value: |
-    - Web Server Name: not empty
-    - Enforce Web Host Name: Enable
 
 - finding_id: csrf-protection-not-enabled
   finding_title: Administrative Interface CSRF Protection Not Enabled
@@ -582,6 +593,9 @@
     audiocodes: |
       System > Web > CSRFprotection
 
+  expected_value: |
+    - CSRFProtection: Enable (1) (default)
+
   description: >
     Cross-Site Request Forgery (CSRF) protection was not enabled for the
     administrative web interface.
@@ -597,17 +611,14 @@
     originate from legitimate requests generated by the management
     interface rather than from malicious third-party websites.
 
-  solution: >
-    Enable CSRF protection for the web management interface and ensure
-    administrative actions are validated using anti-forgery tokens or
-    equivalent request validation mechanisms.
-
   positive: >
     CSRF protection was enabled and administrative actions were
     protected against forged web requests.
 
-  expected_value: |
-    - CSRFProtection: Enable (1) (default)
+  solution: >
+    Enable CSRF protection for the web management interface and ensure
+    administrative actions are validated using anti-forgery tokens or
+    equivalent request validation mechanisms.
 
 - finding_id: ssh-key-authentication-not-used
   finding_title: SSH Key-Based Authentication Not Used
@@ -633,6 +644,9 @@
     audiocodes: |
       Setup > Administration tab > Web & CLI folder > Local Users
 
+  expected_value: |
+    SSH public keys are configured and SSHRequirePublicKey is enabled
+
   description: >
     SSH administration relied solely on password-based authentication.
 
@@ -642,15 +656,12 @@
     authentication can provide stronger assurance of administrator identity and
     reduce the risk of credential compromise.
 
-  solution: >
-    Implement SSH key-based authentication for administrative access where 
-    operationally feasible and operational requirements permit.
-
   positive: >
     SSH administration used key-based authentication.
 
-  expected_value: |
-    SSH public keys are configured and SSHRequirePublicKey is enabled
+  solution: >
+    Implement SSH key-based authentication for administrative access where 
+    operationally feasible and operational requirements permit.
 
 #-------------------------------------------------------------------------------
 # ACCESS CONTROL
@@ -685,22 +696,6 @@
     audiocodes: |
       Setup > Administration tab > Web & CLI folder > Web Interfaces
 
-  description: >
-    Administrative management services were accessible from unnecessary systems 
-    or networks.
-
-  commentary: >
-    Restricting management access reduces the attack surface of the platform 
-    and helps protect administrative interfaces from unauthorised access 
-    attempts originating from internal or external networks.
-
-  solution: >
-    Restrict management services to approved administrative workstations, jump 
-    hosts, or management networks.
-
-  positive: >
-    Management access was restricted to approved systems and networks.
-
   expected_value: |
     Evidence exists that management services are restricted to approved
     management networks, hosts, or interfaces. Examples include:
@@ -715,6 +710,22 @@
 
     Where no technical restriction exists, management services should not be 
     directly accessible from untrusted networks.
+
+  description: >
+    Administrative management services were accessible from unnecessary systems 
+    or networks.
+
+  commentary: >
+    Restricting management access reduces the attack surface of the platform 
+    and helps protect administrative interfaces from unauthorised access 
+    attempts originating from internal or external networks.
+
+  positive: >
+    Management access was restricted to approved systems and networks.
+
+  solution: >
+    Restrict management services to approved administrative workstations, jump 
+    hosts, or management networks.
 
 - finding_id: administrative-access-not-reviewed
   finding_title: Administrative Access Not Periodically Reviewed
@@ -740,6 +751,13 @@
 
       Setup > Administration > Web & CLI > Web Settings
 
+  expected_value: |
+    Where multiple administrative accounts exist, inactive privileged accounts 
+    are identified and managed.
+
+      - User Inactivity Timeout:  90 or less
+      - No inactive privileged accounts are identified
+
   description: >
     Dormant, inactive, or unnecessary administrative accounts were not
     adequately identified or managed.
@@ -750,18 +768,14 @@
     identify inactive users helps administrators detect dormant accounts and 
     manage access appropriately.
 
-  solution: >
-    Configure an appropriate User Inactivity Timeout and periodically review 
-    administrative accounts. Disable, remove, or otherwise manage dormant, 
-    inactive, and unnecessary privileged accounts.
-
   positive: >
     Inactive administrative accounts were identifiable and no unnecessary, 
     dormant, or unexplained privileged accounts were observed.
 
-  expected_value: |
-    - User Inactivity Timeout:  90 or less
-    - No inactive privileged accounts are identified
+  solution: >
+    Configure an appropriate User Inactivity Timeout and periodically review 
+    administrative accounts. Disable, remove, or otherwise manage dormant, 
+    inactive, and unnecessary privileged accounts.
 
 #-------------------------------------------------------------------------------
 # CRYPTOGRAPHY
@@ -790,6 +804,9 @@
     audiocodes: |
       Setup > IP Network tab > Security folder > TLS Contexts > TLS Version
 
+  expected_value: |
+    Only TLS 1.2 and/or TLS 1.3 are permitted
+
   description: >
     Older TLS versions were permitted for management or VoIP communications.
 
@@ -797,15 +814,12 @@
     Deprecated TLS versions contain known weaknesses and may expose management 
     interfaces and VoIP communications to downgrade and cryptographic attacks.
 
-  solution: >
-    Enforce the use of TLS 1.2 and TLS 1.3 for management and VoIP 
-    communications by removing support for older protocol versions.
-
   positive: >
     VoIP communications were restricted to supported TLS versions.
 
-  expected_value: |
-    Only TLS 1.2 and/or TLS 1.3 are permitted
+  solution: >
+    Enforce the use of TLS 1.2 and TLS 1.3 for management and VoIP 
+    communications by removing support for older protocol versions.
 
 - finding_id: weak-cryptography
   finding_title: Weak Cryptographic Algorithms Permitted
@@ -833,6 +847,11 @@
       Setup > IP Network tab > Security folder > TLS Contexts > 
       Cipher Server / Cipher Client / Key Exchange Groups / DH Key Size
 
+  expected_value: |
+    - Cipher Server and Cipher Client: DEFAULT is accepted
+    - Key Exchange Groups: X25519:P-256:P-384:X448 (default)
+    - DH Key Size: 2048 bits or greater
+
   description: >
     Weak or deprecated cryptographic algorithms, key exchange settings, or 
     cryptographic parameters remained enabled.
@@ -844,19 +863,14 @@
     parameters may increase the risk of interception, downgrade attacks, or 
     compromise of encrypted communications.
 
-  solution: >
-    Align cryptographic settings with current vendor guidance and industry best 
-    practice. Remove support for deprecated cipher suites, weak cryptographic 
-    algorithms, and insufficient key exchange parameters.
-
   positive: >
     Strong, modern cryptographic algorithms and key exchange parameters were 
     enforced.
 
-  expected_value: |
-    - Cipher Server and Cipher Client: DEFAULT is accepted
-    - Key Exchange Groups: X25519:P-256:P-384:X448 (default)
-    - DH Key Size: 2048 bits or greater
+  solution: >
+    Align cryptographic settings with current vendor guidance and industry best 
+    practice. Remove support for deprecated cipher suites, weak cryptographic 
+    algorithms, and insufficient key exchange parameters.
 
 - finding_id: signalling-and-media-encryption-not-enforced
   finding_title: VoIP Signalling and Media Encryption Not Enforced
@@ -885,6 +899,14 @@
 
       Setup > Signaling & Media > SIP Definitions > Transport Settings (SIPS)
 
+  expected_value: |
+    TLS and SRTP are enabled where supported by connected systems and service 
+    providers.
+      - Media Security: Enable (SRTP)
+      - SIPS: Enable (SIPS)
+
+    Where encryption is not supported, the limitation should be documented.
+
   description: >
     SIP signalling and/or RTP media traffic were transmitted without encryption 
     despite support for SIPS and SRTP being available.
@@ -899,18 +921,14 @@
     Without SRTP, voice conversations may be susceptible to eavesdropping by 
     attackers with access to the network path.
 
-  solution: >
-    Enable SIPS (SIP over TLS) for SIP signalling and Secure RTP (SRTP) for 
-    voice media wherever supported by connected platforms, gateways, PBXs, and 
-    service providers.
-
   positive: >
     SIP signalling was protected using SIPS and voice media was protected using 
     SRTP where supported by connected systems.
 
-  expected_value: |
-    - Media Security: Enable (SRTP)
-    - SIPS: Enable (SIPS)
+  solution: >
+    Enable SIPS (SIP over TLS) for SIP signalling and Secure RTP (SRTP) for 
+    voice media wherever supported by connected platforms, gateways, PBXs, and 
+    service providers.
 
 #-------------------------------------------------------------------------------
 # THREAT PROTECTION
@@ -942,6 +960,10 @@
       Setup > Signaling & Media > Intrusion Detection > IDS General Settings / 
       IDS Policies
 
+  expected_value: |
+    - Intrusion Detection System (IDS): Enable
+    - One or more IDS Policies are configured and applied.
+
   description: >
     Intrusion detection controls were not configured to detect or respond to 
     malicious SIP activity.
@@ -953,19 +975,15 @@
     in identifying and responding to malicious behaviour before it affects 
     platform availability or security.
 
+  positive: >
+    Intrusion detection controls were configured to detect and respond to 
+    malicious SIP activity.
+
   solution: >
     Enable intrusion detection functionality and configure policies that detect 
     authentication failures, malformed SIP messages, connection abuse, dialog 
     establishment failures, and other suspicious activity. Configure alerting 
     and blocking thresholds appropriate to the deployment.
-
-  positive: >
-    Intrusion detection controls were configured to detect and respond to 
-    malicious SIP activity.
-
-  expected_value: |
-    - Intrusion Detection System (IDS): Enable
-    - One or more IDS Policies are configured and applied.
 
 #-------------------------------------------------------------------------------
 # MONITORING
@@ -993,7 +1011,16 @@
       recorded and retained for investigation and accountability purposes.
 
     audiocodes: |
-      Settings > Troubleshoot > Troubleshoot > Logging > Logging Settings
+      Troubleshoot > Logging > Logging Settings
+
+  expected_value: |
+    Review Activity Types To Report:
+        - Device Software Upgrade
+        - Non-Authorized Access
+        - Sensitive Parameters Value Change
+        - Login and Logout
+        - CLI Activity
+        - Action Executed
 
   description: >
     Administrative activity was not adequately logged or retained.
@@ -1005,22 +1032,13 @@
     security monitoring, incident response, and forensic investigation 
     following suspicious or unauthorised activity.
 
-  solution: >
-    Enable audit logging for administrative activity and retain logs in 
-    accordance with organisational monitoring and retention requirements.
-
   positive: >
     Security-relevant events, administrative activity, and configuration 
     changes were logged and retained appropriately.
 
-  expected_value: |
-    The following are selected:
-    - Device Software Upgrade
-    - Non-Authorized Access
-    - Sensitive Parameters Value Change
-    - Login and Logout
-    - CLI Activity
-    - Action Executed
+  solution: >
+    Enable audit logging for administrative activity and retain logs in 
+    accordance with organisational monitoring and retention requirements.
 
 - finding_id: logs-not-centrally-exported
   finding_title: Security Logs Not Exported to Central Monitoring Platform
@@ -1046,6 +1064,14 @@
       - Remote log collectors
       - Central monitoring platforms
 
+    audiocodes: |
+      Troubleshoot > Logging > Logging Settings
+
+  expected_value: |
+    - Enable Syslog: Enable
+      - Log Security Level: ?
+      - Syslog TLS Context: Configured
+
   description: >
     Logs were stored locally only or were not adequately protected from 
     modification.
@@ -1056,19 +1082,9 @@
     configuration changes, administrative activity, and intrusion detection 
     alerts may be lost if logs are retained only on the local device.
 
-  solution: >
-    Forward logs to a centralised logging platform and restrict access to 
-    authorised personnel.
-
   positive: >
     Logs were exported to a centralised and access-controlled repository.
 
-  expected_value: |
-    Logs are exported to an external logging platform. Examples include:
-
-    - Syslog server
-    - SIEM platform
-    - Central logging solution
-
-    Evidence should identify the configured logging destination and confirm 
-    that logs are retained outside the local device.
+  solution: >
+    Forward logs to a centralised logging platform and restrict access to 
+    authorised personnel.

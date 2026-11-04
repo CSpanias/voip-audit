@@ -6,38 +6,156 @@ Reporting and categorisation constants.
 # EXECUTIVE SUMMARY
 #-------------------------------------------------------------------------------
 
-THEMES = [
-    "Platform Configuration",
-    "Authentication",
-    "Cryptography",
-    "Access Control",
-    "Administrative Security",
-    "Threat Protection",
-    "Monitoring and Detection",
-]
+TITLE_REWRITES = {
+    "unsupported-software-version":
+        "the use of a software version outside the preferred support stream",
+
+    "admin-mfa-not-enforced":
+        "the absence of multi-factor authentication for administrative access",
+
+    "weak-password-policy":
+        "weak password policy settings",
+
+    "authentication-bruteforce-protection-not-configured":
+        "the absence of protections against repeated authentication attempts",
+
+    "shared-accounts-permitted":
+        "the use of shared administrative accounts",
+
+    "default-accounts-enabled":
+        "the presence of default administrative accounts",
+
+    "http-management-enabled":
+        "administrative web access over HTTP",
+
+    "insecure-cli-access-enabled":
+        "the use of insecure command-line administration protocols",
+
+    "excessive-administrative-privileges":
+        "inappropriate assignment of administrative privileges",
+
+    "excessive-session-timeout":
+        "excessive administrative session duration",
+
+    "web-hostname-not-enforced":
+        "the absence of hostname enforcement for the web management interface",
+
+    "csrf-protection-not-enabled":
+        "the absence of CSRF protection for the administrative web interface",
+
+    "ssh-key-authentication-not-used":
+        "the use of password-based SSH administration",
+
+    "insufficient-management-access-restrictions":
+        "insufficient restrictions on management interface access",
+
+    "administrative-access-not-reviewed":
+        "insufficient review of privileged account access",
+
+    "weak-tls-configuration":
+        "support for legacy TLS protocol versions",
+
+    "weak-cryptography":
+        "the use of weak cryptographic algorithms",
+
+    "signalling-and-media-encryption-not-enforced":
+        "unencrypted VoIP signalling or media communications",
+
+    "ids-not-configured":
+        "the absence of intrusion detection controls",
+
+    "security-relevant-events-not-logged":
+        "insufficient logging of security-relevant events",
+
+    "logs-not-centrally-exported":
+        "the absence of centralised security log collection",
+}
 
 
-THEME_DISPLAY = {
-    "Platform Configuration":
-        "platform configuration and lifecycle management",
+POSITIVE_REWRITES = {
 
-    "Authentication":
-        "authentication controls",
+    # Platform Configuration
 
-    "Cryptography":
-        "cryptographic protections",
+    "unsupported-software-version":
+        "a vendor-supported software version",
 
-    "Access Control":
-        "administrative access control",
 
-    "Administrative Security":
-        "administrative security",
+    # Authentication
 
-    "Threat Protection":
-        "threat detection and protection",
+    "admin-mfa-not-enforced":
+        "multi-factor authentication for administrative access",
 
-    "Monitoring and Detection":
-        "logging and monitoring",
+    "weak-password-policy":
+        "strong password controls for administrative accounts",
+
+    "authentication-bruteforce-protection-not-configured":
+        "protections against repeated authentication attacks",
+
+    "shared-accounts-permitted":
+        "uniquely assigned administrative accounts",
+
+    "default-accounts-insecured":
+        "default accounts secured with non-default credentials",
+
+
+    # Administrative Security
+
+    "http-management-enabled":
+        "HTTPS-only administrative access",
+
+    "insecure-cli-access-enabled":
+        "secure administrative CLI access",
+
+    "excessive-administrative-privileges":
+        "appropriate assignment of administrative privileges",
+
+    "excessive-session-timeout":
+        "appropriate administrative session timeout controls",
+
+    "web-hostname-not-enforced":
+        "web management hostname enforcement",
+
+    "csrf-protection-not-enabled":
+        "CSRF protection for administrative interfaces",
+
+    "ssh-key-authentication-not-used":
+        "SSH key-based administrative access",
+
+
+    # Access Control
+
+    "insufficient-management-access-restrictions":
+        "restricted management network access",
+
+    "administrative-access-not-reviewed":
+        "regular review of privileged administrative accounts",
+
+
+    # Cryptography
+
+    "weak-tls-configuration":
+        "supported TLS protocol versions",
+
+    "weak-cryptography":
+        "strong cryptographic algorithms and key exchange parameters",
+
+    "signalling-and-media-encryption-not-enforced":
+        "encrypted SIP signalling and voice communications",
+
+
+    # Threat Protection
+
+    "ids-not-configured":
+        "intrusion detection controls for malicious SIP activity",
+
+
+    # Monitoring
+
+    "security-relevant-events-not-logged":
+        "appropriate audit logging configuration",
+
+    "logs-not-centrally-exported":
+        "centralised Syslog integration",
 }
 
 
@@ -93,34 +211,57 @@ COMMENTARY_SUMMARIES = {
     ),
 
     "Logging and Monitoring": (
-        "The review highlighted weaknesses affecting the monitoring, "
-        "logging, and detection capabilities of the assessed VoIP "
-        "environment."
+        "The assessment reviewed the monitoring, logging, and detection "
+        "capabilities of the assessed VoIP environment."
     ),
+}
+
+
+THEME_REWRITES = {
+    "Authentication and Identity":
+        "authentication controls",
+
+    "Cryptography and Communications Security":
+        "cryptographic configuration",
+
+    "Administrative Interface Security":
+        "administrative interface security",
+
+    "Administrative Access Control":
+        "privileged access management",
+
+    "Threat Detection and Protection":
+        "threat detection capabilities",
+
+    "Logging and Monitoring":
+        "security monitoring and logging controls",
+
+    "Platform Configuration and Lifecycle Management":
+        "platform lifecycle management",
 }
 
 
 COMMENTARY_INTROS = {
     "Platform Configuration and Lifecycle Management":
-        "The assessment identified that ",
+        "The assessment identified ",
 
     "Authentication and Identity":
-        "Review of authentication controls determined that ",
+        "Review of authentication controls identified ",
 
     "Cryptography and Communications Security":
-        "The assessment noted that ",
+        "The assessment identified ",
 
     "Administrative Interface Security":
-        "Further assessment identified that ",
+        "Further assessment identified ",
 
     "Administrative Access Control":
-        "The review observed that ",
+        "The review identified ",
 
     "Threat Detection and Protection":
-        "The assessment found that ",
+        "The assessment identified ",
 
     "Logging and Monitoring":
-        "The review highlighted that ",
+        "The review identified ",
 }
 
 

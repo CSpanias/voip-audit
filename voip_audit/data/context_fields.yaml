@@ -114,6 +114,9 @@
       Mediant 1000 Gateway, Cisco Unified Border Element, or an equivalent 
       model).
 
+    audiocodes: |
+      Monitor > Summary > Device Information > Product Name
+
 - id: software_version
   label: What software version is installed?
   type: string
@@ -124,10 +127,13 @@
     - all
 
   hints:
-    common:
+    common: |
       Record the currently installed software, firmware, or operating system 
       version where available. This information is used to assess platform 
       supportability and patch status.
+
+    audiocodes: |
+      Monitor > Summary > Device Information > Version ID
 
 - id: management_address
   label: What is the primary management IP address, hostname, or URL?

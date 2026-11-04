@@ -108,12 +108,11 @@ class ContextField(BaseModel):
 
 class ReviewContext(BaseModel):
     """
-    Stores environment information gathered during the
-    assessment context collection phase.
+    Stores environment information gathered during the assessment context 
+    collection phase.
 
-    This information is used within exported reports and
-    provides the background information required to describe
-    the reviewed VoIP environment.
+    This information is used within exported reports and provides the 
+    background information required to describe the reviewed VoIP environment.
 
     A single ReviewContext exists for each assessment.
     """
@@ -126,11 +125,15 @@ class ReviewContext(BaseModel):
 
     deployment_type: str | None = None
 
+    management_address: str | None = None
+
     device_type: str | None = None
 
     identity_provider: str | None = None
 
     sip_provider: str | None = None
+
+    software_version: str | None = None
 
     context_notes: dict[str, str] = Field(default_factory=dict)
 
