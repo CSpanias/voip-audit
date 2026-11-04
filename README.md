@@ -14,6 +14,14 @@ Structured Assessment
 Markdown Report + JSON Export
 ```
 
+For more context regarding the assessed controls check [here](https://github.com/CSpanias/voip-audit/tree/main/voip_audit/docs/).
+
+## Supported Platforms
+
+- AudioCodes SBCs
+
+Additional platforms can be added through the YAML-driven assessment framework.
+
 ## Installation
 
 ### [UV](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer) (Method 1 - Recommended)
@@ -57,21 +65,21 @@ python -m voip_audit.review
 
 ## Features
 
-WIP
+- Guided remote access solution assessment workflow
+- Markdown-formatted report generation
+- JSON findings export
+- JSON assessment notes export
+- YAML-driven assessment content
 
 ## Usage
 
-WIP
+Just launch the tool!
 
-## Example Output
-
-WIP
+```bash
+voip-audit
+```
 
 ## Requirements
 
 - Python 3.11+
 - UV (recommended)
-
-## Roadmap
-
-WIP
