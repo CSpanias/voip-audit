@@ -89,9 +89,61 @@
     remains within a vendor-supported software lifecycle and is upgraded in 
     accordance with vendor guidance.
 
+  references:
+
+    audiocodes: []
+
 #-------------------------------------------------------------------------------
 # AUTHENTICATION
 #-------------------------------------------------------------------------------
+
+- finding_id: insecure-ldap-communication
+  finding_title: LDAP Communication Not Protected By TLS
+
+  theme: Authentication
+  commentary_group: Authentication and Identity
+  section: authentication
+  remediation_id: identity_and_access_management
+
+  question: Are LDAP communications protected using TLS?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review LDAP authentication configuration and determine whether 
+      communications with LDAP servers are protected using TLS.
+
+    audiocodes: |
+      Setup > IP Network > AAA Servers > LDAP Servers
+
+  expected_value: |
+      - Use TLS = Yes
+      - TLS Context assigned
+
+  description: >
+      LDAP communications were performed without transport encryption.
+
+  commentary: >
+      LDAP authentication traffic may contain usernames, passwords, and 
+      directory information. Without TLS protection, sensitive authentication 
+      data may be exposed to interception or manipulation.
+
+  positive: >
+      LDAP communications were protected using TLS.
+
+  solution: >
+      Enable TLS for LDAP communications and assign an appropriate TLS 
+      Context to protect authentication traffic.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20LDAP%20Communication.htm,
+    ]
 
 - finding_id: admin-mfa-not-enforced
   finding_title: Administrator Multi-Factor Authentication Not Enforced
@@ -148,6 +200,10 @@
     Configure multi-factor authentication as a mandatory control for all 
     administrative and privileged accounts where supported.
 
+  references:
+
+    audiocodes: []
+
 - finding_id: weak-password-policy
   finding_title: Weak Password Policy Configured
   theme: Authentication
@@ -193,6 +249,10 @@
   solution: >
     Enforce strong password complexity requirements, prevent password reuse, 
     and implement controls that identify or restrict the use of weak passwords.
+
+  references:
+
+    audiocodes: []
 
 - finding_id: authentication-bruteforce-protection-not-configured
   finding_title: Authentication Brute-Force Protection Not Configured
@@ -241,6 +301,10 @@
     authentication throttling, back-off timers, or temporary source 
     restrictions following repeated failed login attempts.
 
+  references:
+
+    audiocodes: []
+
 - finding_id: shared-accounts-permitted
   finding_title: Shared Accounts Permitted
   theme: Authentication
@@ -283,6 +347,10 @@
     Replace shared accounts with uniquely assigned administrator accounts to 
     improve accountability and auditability.
 
+  references:
+
+    audiocodes: []
+
 - finding_id: default-accounts-insecured
   finding_title: Default Accounts Not Secured
   theme: Authentication
@@ -305,6 +373,10 @@
     audiocodes: |
       Setup > Administration > Web & CLI > Local Users
 
+  expected_value: |
+    Review local accounts and confirm default accounts (Admin:Admin, User:User) 
+    are secured, disabled, or removed.
+
   description: >
     One or more default accounts remained enabled or were configured with 
     default credentials.
@@ -325,9 +397,11 @@
     unique credentials and that access is appropriately restricted and 
     monitored.
 
-  expected_value: |
-    Review local accounts and confirm default accounts (Admin:Admin, User:User) 
-    are secured, disabled, or removed.
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Change%20Default%20Management.htm,
+    ]
 
 #-------------------------------------------------------------------------------
 # ADMINISTRATIVE SECURITY
@@ -379,6 +453,12 @@
     Disable HTTP management access and enforce HTTPS for all administrative 
     activity.
 
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20HTTP%20Access%20using%20HTTPS.htm,
+    ]
+
 - finding_id: insecure-cli-access-enabled
   finding_title: Insecure Administrative CLI Access Enabled
 
@@ -421,6 +501,13 @@
   solution: >
     Restrict SSH access to authorised administrators and approved management 
     networks.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20Telnet%20Sessions.htm,
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20CLI%20Sessions%20by%20SSH.htm,
+    ]
 
 - finding_id: excessive-administrative-privileges
   finding_title: Administrative Accounts Not Assigned Appropriate Roles
@@ -475,6 +562,10 @@
     Administrator roles to separate administrative responsibilities where 
     appropriate.
 
+  references:
+
+    audiocodes: []
+
 - finding_id: excessive-session-timeout
   finding_title: Administrative Session Timeout Not Appropriately Configured
   theme: Administrative Security
@@ -516,6 +607,10 @@
   solution: >
     Configure an appropriate inactivity timeout to ensure unused administrative 
     sessions are automatically terminated.
+
+  references:
+
+    audiocodes: []
 
 - finding_id: web-hostname-not-enforced
   finding_title: Web Management Hostname Enforcement Not Configured
@@ -567,6 +662,12 @@
     hostname is correctly registered in DNS and administrative users access the 
     platform using the approved hostname.
 
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/hostname-for-web-interface.htm,
+    ]
+
 - finding_id: csrf-protection-not-enabled
   finding_title: Administrative Interface CSRF Protection Not Enabled
 
@@ -601,24 +702,28 @@
     administrative web interface.
 
   commentary: >
-    CSRF attacks occur when an authenticated administrator is tricked
-    into submitting unintended requests to a trusted management
-    interface. If successful, an attacker may be able to perform
-    administrative actions using the victim's authenticated session.
+    CSRF attacks occur when an authenticated administrator is tricked into 
+    submitting unintended requests to a trusted management interface. If 
+    successful, an attacker may be able to perform administrative actions using 
+    the victim's authenticated session.
 
-    CSRF protection uses unique request validation tokens to verify
-    that configuration changes and other administrative actions
-    originate from legitimate requests generated by the management
-    interface rather than from malicious third-party websites.
+    CSRF protection uses unique request validation tokens to verify that 
+    configuration changes and other administrative actions originate from 
+    legitimate requests generated by the management interface rather than from 
+    malicious third-party websites.
 
   positive: >
-    CSRF protection was enabled and administrative actions were
-    protected against forged web requests.
+    CSRF protection was enabled and administrative actions were protected 
+    against forged web requests.
 
   solution: >
-    Enable CSRF protection for the web management interface and ensure
-    administrative actions are validated using anti-forgery tokens or
+    Enable CSRF protection for the web management interface and ensure 
+    administrative actions are validated using anti-forgery tokens or 
     equivalent request validation mechanisms.
+
+  references:
+
+    audiocodes: []
 
 - finding_id: ssh-key-authentication-not-used
   finding_title: SSH Key-Based Authentication Not Used
@@ -663,6 +768,69 @@
     Implement SSH key-based authentication for administrative access where 
     operationally feasible and operational requirements permit.
 
+  references:
+
+    audiocodes: []
+
+- finding_id: insecure-snmp-configuration
+  finding_title: Insecure SNMP Configuration
+
+  theme: Administrative Security
+  commentary_group: Administrative Interface Security
+  section: administrative_security
+  remediation_id: administrative_interface_security
+
+  question: Are SNMP services configured securely?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    common: |
+      Review SNMP configuration and determine whether secure management
+      protocols are used.
+
+      Confirm:
+      - SNMPv3 is used where possible
+      - Default community strings are not present
+      - Trusted managers are configured
+      - Authentication and privacy settings are enabled
+
+    audiocodes: |
+      Setup > Administration > SNMP > SNMP V3 Users / SNMP Community Settings
+
+  expected_value: |
+      - SNMPv3 preferred
+      - Default community strings (READ-ONLY -> public, READ-WRITE -> private)
+      are changed
+
+  description: >
+      SNMP services were configured using insecure protocols, weak community 
+      strings, or unrestricted access controls.
+
+  commentary: >
+      Insecure SNMP configurations may expose sensitive management information 
+      and provide unauthorised administrative access. Earlier SNMP versions 
+      rely on community strings that may be intercepted or guessed, 
+      particularly when default values are used.
+
+  positive: >
+      SNMP services were configured using secure authentication and access 
+      controls.
+
+  solution: >
+      Use SNMPv3 wherever possible and enable authentication and privacy 
+      protection. Remove default community strings and restrict access to 
+      approved management systems through Trusted Manager controls.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20SNMP%20Interface%20Access.htm,
+    ]
+
 #-------------------------------------------------------------------------------
 # ACCESS CONTROL
 #-------------------------------------------------------------------------------
@@ -696,17 +864,20 @@
     audiocodes: |
       Setup > Administration tab > Web & CLI folder > Web Interfaces
 
+      Setup > Administration > Web & CLI > Management Access List
+
   expected_value: |
     Evidence exists that management services are restricted to approved
     management networks, hosts, or interfaces. Examples include:
 
-    - Dedicated management VLANs
-    - OAMP interfaces
-    - Firewall restrictions
-    - Trusted host restrictions
-    - Jump hosts
-    - Administrative workstations
-    - Network segmentation
+      - Dedicated management VLANs
+      - OAMP interfaces
+      - Firewall restrictions
+      - Trusted host restrictions
+      - Jump hosts
+      - Administrative workstations
+      - Network segmentation
+      - Management Access Lists
 
     Where no technical restriction exists, management services should not be 
     directly accessible from untrusted networks.
@@ -726,6 +897,12 @@
   solution: >
     Restrict management services to approved administrative workstations, jump 
     hosts, or management networks.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Define%20Web%20Telnet%20and%20SSH.htm,
+    ]
 
 - finding_id: administrative-access-not-reviewed
   finding_title: Administrative Access Not Periodically Reviewed
@@ -777,6 +954,10 @@
     administrative accounts. Disable, remove, or otherwise manage dormant, 
     inactive, and unnecessary privileged accounts.
 
+  references:
+
+    audiocodes: []
+
 #-------------------------------------------------------------------------------
 # CRYPTOGRAPHY
 #-------------------------------------------------------------------------------
@@ -820,6 +1001,12 @@
   solution: >
     Enforce the use of TLS 1.2 and TLS 1.3 for management and VoIP 
     communications by removing support for older protocol versions.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Use%20TLS%20Version%201%202%20or%201%203.htm,
+    ]
 
 - finding_id: weak-cryptography
   finding_title: Weak Cryptographic Algorithms Permitted
@@ -871,6 +1058,10 @@
     Align cryptographic settings with current vendor guidance and industry best 
     practice. Remove support for deprecated cipher suites, weak cryptographic 
     algorithms, and insufficient key exchange parameters.
+
+  references:
+
+    audiocodes: []
 
 - finding_id: signalling-and-media-encryption-not-enforced
   finding_title: VoIP Signalling and Media Encryption Not Enforced
@@ -930,6 +1121,13 @@
     voice media wherever supported by connected platforms, gateways, PBXs, and 
     service providers.
 
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20SIP%20using%20TLS%20SIPS.htm,
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Secure%20Media%20RTP%20Traffic%20using.htm,
+    ]
+
 #-------------------------------------------------------------------------------
 # THREAT PROTECTION
 #-------------------------------------------------------------------------------
@@ -960,9 +1158,19 @@
       Setup > Signaling & Media > Intrusion Detection > IDS General Settings / 
       IDS Policies
 
+      Setup > Signaling & Media > SBC > Malicious Signature
+      Setup > Signaling & Media > Message Manipulation > Message Policies
+      Setup > Signaling & Media > Core Entities > SIP Interfaces
+
   expected_value: |
-    - Intrusion Detection System (IDS): Enable
-    - One or more IDS Policies are configured and applied.
+    For IDS:
+      - Intrusion Detection System (IDS): Enable
+      - One or more IDS Policies are configured and applied.
+
+    For Malicious Signatures:
+    - Malicious signatures configured
+    - Malicious Signature Database: Enable
+    - Message Policy: Policy applied per SIP interface
 
   description: >
     Intrusion detection controls were not configured to detect or respond to 
@@ -984,6 +1192,13 @@
     authentication failures, malformed SIP messages, connection abuse, dialog 
     establishment failures, and other suspicious activity. Configure alerting 
     and blocking thresholds appropriate to the deployment.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Implement%20Dynamic%20Blacklisting.htm,
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Define%20Malicious%20Signatures.htm,
+    ]
 
 #-------------------------------------------------------------------------------
 # MONITORING
@@ -1013,14 +1228,25 @@
     audiocodes: |
       Troubleshoot > Logging > Logging Settings
 
+      Troubleshoot > Call Detail Record > Call Detail Record > Call Detail 
+      Record Settings
+
   expected_value: |
     Review Activity Types To Report:
-        - Device Software Upgrade
-        - Non-Authorized Access
-        - Sensitive Parameters Value Change
-        - Login and Logout
-        - CLI Activity
-        - Action Executed
+      - Device Software Upgrade
+      - Non-Authorized Access
+      - Sensitive Parameters Value Change
+      - Login and Logout
+      - CLI Activity
+      - Action Executed
+    
+    For CDRs:
+      - CDR Syslog Server IP Address: Configured
+      - CDR Report Level: Start & End & Connect Call
+      - Media CDR Report Level: End Media
+      - CDR Syslog Sequence Number: Enable
+
+    Note: For CDRs, the Syslog functionality must be enabled.
 
   description: >
     Administrative activity was not adequately logged or retained.
@@ -1039,6 +1265,13 @@
   solution: >
     Enable audit logging for administrative activity and retain logs in 
     accordance with organisational monitoring and retention requirements.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Enable%20Logging%20of%20Management.htm,
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Enable%20Call%20Detail%20Records.htm,
+    ]
 
 - finding_id: logs-not-centrally-exported
   finding_title: Security Logs Not Exported to Central Monitoring Platform
@@ -1077,7 +1310,7 @@
     modification.
 
   commentary: >
-    Centralised log collection improves the ability to detect andinvestigate 
+    Centralised log collection improves the ability to detect and investigate 
     security incidents affecting VoIP infrastructure. Authentication events, 
     configuration changes, administrative activity, and intrusion detection 
     alerts may be lost if logs are retained only on the local device.
@@ -1088,3 +1321,57 @@
   solution: >
     Forward logs to a centralised logging platform and restrict access to 
     authorised personnel.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Enable%20Syslog.htm,
+    ]
+
+#-------------------------------------------------------------------------------
+# SIP SECURITY
+#-------------------------------------------------------------------------------
+
+- finding_id: unregistered-users-permitted
+  finding_title: Calls From Unregistered Users Permitted
+
+  theme: VoIP Security
+  commentary_group: Threat Detection and Protection
+  section: voip_security
+  remediation_id: threat_protection
+
+  question: Are calls restricted to registered users where applicable?
+
+  expected_answer: compliant
+
+  vendors:
+    - AudioCodes
+
+  hints:
+    audiocodes: |
+      Setup > Signaling & Media > Core Identities > SIP Interfaces / SRDs
+
+  expected_value: |
+      For the relevant SIP interface or SDR:
+        - Enable Un-Authenticated Registrations: Disable
+
+  description: >
+      Calls from unregistered users were permitted.
+
+  commentary: >
+      Permitting calls from unauthenticated or unregistered users may increase 
+      the risk of fraudulent call activity, unauthorised service use, and SIP 
+      impersonation attacks.
+
+  positive: >
+      Calls were restricted to registered users where applicable.
+
+  solution: >
+      Configure registration enforcement and restrict call placement to 
+      authenticated and registered users where operationally appropriate.
+
+  references:
+
+    audiocodes: [
+      https://techdocs.audiocodes.com/session-border-controller-sbc/security/version-740/Content/Security/Block%20Registration%20from%20Un.htm,
+    ]

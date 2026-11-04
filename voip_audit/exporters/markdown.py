@@ -14,8 +14,6 @@ from voip_audit.constants import(
     COMMENTARY_SUMMARIES,
     THEME_REWRITES,
     COMMENTARY_INTROS,
-    REMEDIATIONS,
-    REFERENCES,
 )
 from voip_audit.models import AssessmentResults
 
@@ -24,7 +22,10 @@ def _get_review_scope(
     results: AssessmentResults,
 ) -> str:
     """
-    Return a human-readable assessment scope.
+    Return a human-readable description of the assessed VoIP deployment.
+
+    This value is used within report narrative to describe the scope of
+    the review in a consistent format.
     """
 
     return f"{results.context.voip_solution.value} deployment"
@@ -37,8 +38,14 @@ def _generate_assessment_context(
     results: AssessmentResults,
 ) -> list[str]:
     """
-    Generate the assessment context section.
+    Generate the assessment context table.
+
+    The context table summarises key characteristics of the assessed
+    environment, including platform information, deployment details,
+    management interfaces, authentication sources, and supporting
+    infrastructure components.
     """
+
 
     context = results.context
 
@@ -85,6 +92,13 @@ def _generate_assessment_context(
 def _get_top_findings(
     results: AssessmentResults,
 ) -> list[str]:
+    """
+    Return a high-level summary of affected security themes.
+
+    Findings are grouped by commentary category and translated into
+    executive-summary-friendly themes to avoid listing individual
+    configuration weaknesses.
+    """
 
     groups = _group_findings(results.findings)
 
@@ -101,6 +115,12 @@ def _get_top_positives(
     results: AssessmentResults,
     limit: int = 4,
 ) -> list[str]:
+    """
+    Return a concise summary of positive security controls.
+
+    Positive observations are rewritten into short descriptions suitable
+    for inclusion within the executive summary.
+    """
 
     items = []
 
@@ -120,8 +140,11 @@ def _get_security_posture(
     results: AssessmentResults,
 ) -> str:
     """
-    Determine the overall security posture based on the ratio of positive 
-    observations to findings.
+    Determine the overall security posture of the assessed environment.
+
+    The posture rating is derived from the ratio of positive observations
+    to identified findings and is used to influence executive summary
+    narrative and report messaging.
     """
 
     total = (len(results.findings) + len(results.positives))
@@ -141,6 +164,12 @@ def _get_security_posture(
 
 
 def _format_list(items: list[str]) -> str:
+    """
+    Format a list of values into a human-readable sentence fragment.
+
+    Items are joined using natural language rules including appropriate
+    use of commas and the final conjunction.
+    """
 
     if not items:
         return ""
@@ -162,6 +191,10 @@ def _generate_executive_summary(
 ) -> list[str]:
     """
     Generate the executive summary section.
+
+    The executive summary provides a management-level overview of the
+    assessment scope, overall security posture, key areas of concern,
+    positive observations, and the overall assessment conclusion.
     """
 
     lines = []
@@ -280,6 +313,13 @@ def _generate_executive_summary(
 def _generate_commentary_overview(
     results: AssessmentResults,
 ) -> str:
+    """
+    Generate a high-level overview of identified security themes.
+
+    This summary introduces the commentary section and highlights the
+    primary security domains in which opportunities for improvement
+    were identified.
+    """
 
     groups = _group_findings(results.findings)
 
@@ -288,7 +328,7 @@ def _generate_commentary_overview(
     for group_name in groups:
 
         themes.append(
-            COMMENTARY_OVERVIEW_THEMES.get(
+            THEME_REWRITES.get(
                 group_name,
                 group_name.lower(),
             )
@@ -305,8 +345,13 @@ def _generate_positive_observations(
     results: AssessmentResults,
 ) -> list[str]:
     """
-    Generate the positive observations section.
+    Generate the positive observations subsection.
+
+    Positive observations are included to highlight effective security
+    controls and provide balanced reporting alongside identified
+    findings.
     """
+
 
     if not results.positives:
         return []
@@ -368,6 +413,13 @@ def _group_findings(
 def _get_observation_summary(
     findings: list,
 ) -> str:
+    """
+    Generate a concise summary of findings within a commentary group.
+
+    Individual findings are rewritten into report-friendly descriptions
+    and merged into a single narrative sentence.
+    """
+
 
     observations = []
 
@@ -387,6 +439,13 @@ def _build_group_commentary(
     group_name: str,
     findings: list,
 ) -> str:
+    """
+    Generate narrative commentary for a finding group.
+
+    Commentary combines a security-domain introduction, a summary of
+    identified observations, and supporting impact information to
+    produce a consultant-style assessment narrative.
+    """
 
     summary = COMMENTARY_SUMMARIES[group_name]
     intro = COMMENTARY_INTROS[group_name]
@@ -405,6 +464,12 @@ def _build_group_commentary(
 def _get_commentary_impact(
     findings: list,
 ) -> str:
+    """
+    Combine finding impact statements into a single narrative block.
+
+    Duplicate commentary entries are removed while preserving the
+    original finding order.
+    """
 
     impacts = []
 
@@ -420,6 +485,10 @@ def _generate_commentary(
 ) -> list[str]:
     """
     Generate the assessment commentary section.
+
+    The commentary section provides detailed technical narrative grouped
+    by security theme, including contextual information, identified
+    weaknesses, associated risks, and positive observations.
     """
 
     lines = []
@@ -467,23 +536,25 @@ def _generate_commentary(
 # REMEDIATION
 #-------------------------------------------------------------------------------
 
-def _generate_priority_recommendations(
+def _generate_recommendations(
     results: AssessmentResults,
 ) -> list[str]:
+    """
+    Generate a deduplicated list of remediation actions.
+
+    Recommendations are derived directly from identified findings and
+    consolidated to avoid repeating identical remediation guidance.
+    """
 
     if not results.findings:
         return []
 
     lines = []
-
-    lines.append("### Priority Recommendations")
-    lines.append("")
-
     seen = set()
 
     for finding in results.findings:
 
-        recommendation = (finding.solution.strip())
+        recommendation = finding.solution.strip()
 
         if recommendation in seen:
             continue
@@ -496,11 +567,61 @@ def _generate_priority_recommendations(
     return lines
 
 
+def _generate_references(
+    results: AssessmentResults,
+) -> list[str]:
+    """
+    Generate a finding-specific references section.
+
+    References associated with identified findings are collected,
+    deduplicated, and included to support remediation activities and
+    provide links to relevant technical guidance.
+    """
+
+    references = []
+    seen = set()
+
+    platform = results.context.voip_solution.value.lower()
+
+    for finding in results.findings:
+
+        for url in finding.references.get(platform, []):
+
+            if url not in seen:
+                seen.add(url)
+                references.append(url)
+
+        for url in finding.references.get("generic", []):
+
+            if url not in seen:
+                seen.add(url)
+                references.append(url)
+
+    if not references:
+        return []
+
+    lines = []
+
+    lines.append("### References")
+    lines.append("")
+
+    for url in references:
+        lines.append(f"- {url}")
+
+    lines.append("")
+
+    return lines
+
+
 def _generate_remediation(
     results: AssessmentResults,
 ) -> list[str]:
     """
     Generate the remediation section.
+
+    This section provides recommended corrective actions for identified
+    findings and includes supporting technical references where
+    available.
     """
 
     lines = []
@@ -508,69 +629,36 @@ def _generate_remediation(
     lines.append("## Remediation")
     lines.append("")
 
-    lines.extend(_generate_priority_recommendations(results))
-
     if not results.findings:
+
         lines.append("No remediation actions are currently required.")
         lines.append("")
 
     else:
+
         lines.append("The following remediation actions are recommended:")
         lines.append("")
 
-        recommendations = {}
+        lines.extend(_generate_recommendations(results))
 
-        for finding in results.findings:
-
-            remediation_id = getattr(
-                finding,
-                "remediation_id",
-                None,
-            )
-
-            if remediation_id:
-                recommendations.setdefault(
-                    remediation_id,
-                    REMEDIATIONS.get(
-                        remediation_id,
-                        f"[MISSING REMEDIATION] {finding.solution.strip()}",
-                    ),
-                )
-
-            else:
-                recommendations.setdefault(
-                    finding.solution.strip(),
-                    finding.solution.strip(),
-                )
-
-        for recommendation in sorted(recommendations.values()):
-
-            lines.append(f"- {recommendation}")
-
-        lines.append("")
-
-    lines.append("### References")
-    lines.append("")
-
-    for title, url in REFERENCES["Generic"].items():
-        lines.append(f"- [{url}]({url})")
-
-    platform = results.context.voip_solution.value
-
-    if platform in REFERENCES:
-        for title, url in REFERENCES[platform].items():
-            lines.append(f"- [{url}]({url})")
-
+    lines.extend(_generate_references(results))
 
     return lines
 
+
+#-------------------------------------------------------------------------------
+# EXPORT
+#-------------------------------------------------------------------------------
 
 def export_markdown(
     results: AssessmentResults,
     output_file: str,
 ) -> None:
     """
-    Export assessment report as Markdown.
+    Export the assessment results as a Markdown report.
+
+    The generated report includes an executive summary, detailed
+    commentary, remediation guidance, and supporting references.
     """
 
     path = Path(output_file)

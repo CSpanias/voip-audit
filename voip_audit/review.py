@@ -395,6 +395,7 @@ def generate_findings(
                     description=question.description.strip(),
                     commentary=question.commentary.strip(),
                     solution=question.solution.strip(),
+                    references=question.references,
                     notes=response.notes,
                 )
             )

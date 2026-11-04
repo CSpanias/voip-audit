@@ -187,11 +187,16 @@ class Question(BaseModel):
     solution: str
     positive: str
 
+    references: dict[str, list[str]] = Field(
+        default_factory=dict
+    )
+
     expected_value: str
 
     hints: VendorHints | None = None
 
     vendors: list[str] = Field(default_factory=lambda: ["all"])
+
 
 
 class Finding(BaseModel):
@@ -216,7 +221,6 @@ class Finding(BaseModel):
     commentary_group: str
 
     section: str
-    remediation_id: str | None = None
 
     title: str
 
@@ -224,6 +228,11 @@ class Finding(BaseModel):
     commentary: str
     solution: str
 
+    references: dict[str, list[str]] = Field(
+            default_factory=dict
+        )
+
+    remediation_id: str | None = None
     notes: str | None = None
 
 

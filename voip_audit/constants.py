@@ -22,8 +22,11 @@ TITLE_REWRITES = {
     "shared-accounts-permitted":
         "the use of shared administrative accounts",
 
-    "default-accounts-enabled":
-        "the presence of default administrative accounts",
+    "default-accounts-insecured":
+        "default accounts secured with default credentials",
+
+    "insecure-ldap-communication":
+        "unencrypted LDAP communication",
 
     "http-management-enabled":
         "administrative web access over HTTP",
@@ -46,6 +49,9 @@ TITLE_REWRITES = {
     "ssh-key-authentication-not-used":
         "the use of password-based SSH administration",
 
+    "insecure-snmp-configuration":
+        "the use of insecure SNMP configuration settings",
+
     "insufficient-management-access-restrictions":
         "insufficient restrictions on management interface access",
 
@@ -63,6 +69,9 @@ TITLE_REWRITES = {
 
     "ids-not-configured":
         "the absence of intrusion detection controls",
+
+    "unregistered-users-permitted":
+        "calls from unregistered users",
 
     "security-relevant-events-not-logged":
         "insufficient logging of security-relevant events",
@@ -97,6 +106,9 @@ POSITIVE_REWRITES = {
     "default-accounts-insecured":
         "default accounts secured with non-default credentials",
 
+    "insecure-ldap-communication":
+        "LDAP communications protected using TLS",
+
 
     # Administrative Security
 
@@ -120,6 +132,9 @@ POSITIVE_REWRITES = {
 
     "ssh-key-authentication-not-used":
         "SSH key-based administrative access",
+
+    "insecure-snmp-configuration":
+        "secure SNMP authentication and access controls",
 
 
     # Access Control
@@ -147,6 +162,9 @@ POSITIVE_REWRITES = {
 
     "ids-not-configured":
         "intrusion detection controls for malicious SIP activity",
+
+    "unregistered-users-permitted":
+        "registration-based call access controls",
 
 
     # Monitoring
@@ -262,73 +280,4 @@ COMMENTARY_INTROS = {
 
     "Logging and Monitoring":
         "The review identified ",
-}
-
-
-#-------------------------------------------------------------------------------
-# REMEDIATION
-#-------------------------------------------------------------------------------
-
-REMEDIATIONS = {
-
-    "identity_and_access_management": (
-        "Enhance identity and access management controls by enforcing "
-        "multi-factor authentication, using named administrative accounts, "
-        "integrating with a centralised identity provider, and "
-        "implementing formal account lifecycle management processes."
-    ),
-
-    "cryptography_and_communications": (
-        "Protect administrative, signalling, and media traffic through "
-        "the use of supported TLS versions, secure cryptographic "
-        "algorithms, and encrypted VoIP communication protocols."
-    ),
-
-    "administrative_interface_security": (
-        "Strengthen the security of administrative interfaces by "
-        "enforcing HTTPS, restricting management access, "
-        "implementing SSH key-based authentication where "
-        "appropriate, configuring hostname enforcement for web "
-        "administration, and applying suitable session timeout "
-        "controls."
-    ),
-
-    "privileged_access_governance": (
-        "Refine privileged access controls through role-based "
-        "access control, management network restrictions, periodic "
-        "access reviews, and privileged access management practices."
-    ),
-
-    "logging_and_monitoring": (
-        "Improve monitoring and detection capabilities by enabling "
-        "comprehensive audit logging, retaining administrative audit "
-        "records, forwarding logs to a centralised monitoring platform, "
-        "and establishing formal log review procedures."
-    ),
-
-    "platform_lifecycle": (
-        "Establish a platform lifecycle management process to ensure "
-        "VoIP infrastructure components remain supported, receive "
-        "security updates, and are upgraded before reaching end-of-life."
-    ),
-}
-
-
-REFERENCES = {
-    "Generic": {
-        "NCSC Secure Voice and Collaboration Services Guidance":
-            "https://www.ncsc.gov.uk/",
-        "NIST Cybersecurity Framework":
-            "https://www.nist.gov/cyberframework",
-    },
-
-    "AudioCodes SBC": {
-        "AudioCodes SBC Documentation":
-            "https://techdocs.audiocodes.com/",
-    },
-
-    "AudioCodes Gateway": {
-        "AudioCodes Gateway Documentation":
-            "https://techdocs.audiocodes.com/",
-    },
 }
